@@ -13,6 +13,7 @@ import currencySlice from "./slice/currencySlice";
 import languageSlice from "./slice/languageSlice";
 import commissionSlice from "./slice/commissionSlice";
 import blogSlice from "./slice/blogSlice";
+import notificationSlice from "./slice/notificationSlice";
 
 export const store = configureStore({
   reducer: {
@@ -30,6 +31,7 @@ export const store = configureStore({
     language: languageSlice,
     commission: commissionSlice,
     blog: blogSlice,
+    notification: notificationSlice,
   },
 });
 

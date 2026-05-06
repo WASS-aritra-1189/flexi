@@ -37,6 +37,7 @@ import Blog from "../pages/blog-management/Blog";
 import ContactUs from "../pages/contact-us/ContactUs";
 import BlogCreate from "../pages/blog-management/BlogCreate";
 import BlogDetails from "../pages/blog-management/BlogDetails";
+import Notification from "../pages/notification-management/Notification";
 
 const routes = createBrowserRouter([
     {
@@ -86,6 +87,7 @@ const routes = createBrowserRouter([
             { path: "blogs/create", element: <BlogCreate /> },
             { path: "blogs/details", element: <BlogDetails /> },
             { path: "contact-us", element: <ContactUs /> },
+            { path: "notifications", element: <Notification /> },
         ],
     },
     {

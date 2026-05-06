@@ -19,6 +19,7 @@ const currencyURL = `${RootURL}currency`;
 const languageURL = `${RootURL}languages`;
 const commissionURL = `${RootURL}commission`;
 const blogURL = `${RootURL}blogs`;
+const notificationURL = `${RootURL}notifications`;
 
 const login = (credentials) => {
   return axios.post(`${authUrl}/admin/login`, credentials);
@@ -444,7 +445,7 @@ const updateBlogStatus = async (id, payload) => {
   });
 };
 
-// {{web_url}}ticket/admin/list?limit=10&offset=0&keyword&status=RESOLVED
+// ticket
 const getTicket = async (payload) => {
   const { limit, offset, keyword, status } = payload;
   return axios.get(
@@ -452,9 +453,34 @@ const getTicket = async (payload) => {
   );
 };
 
-// {{web_url}}ticket/status/920a9e64-2382-4c9f-afdf-8625d25d340f
 const updateTicketStatus = async (id, payload) => {
   return axios.put(`${ticketURL}/status/${id}`, payload, {
+    headers: await authHeader(),
+  });
+};
+
+// notification
+const createNotification = async (payload) => {
+  return axios.post(`${notificationURL}/single`, payload, {
+    headers: await authHeader(),
+  });
+};
+
+const getNotifications = async (payload) => {
+  const { limit, offset } = payload;
+  return axios.get(`${notificationURL}/list?limit=${limit}&offset=${offset}`, {
+    headers: await authHeader(),
+  });
+};
+
+const updateNotification = async (id, payload) => {
+  return axios.patch(`${notificationURL}/update/${id}`, payload, {
+    headers: await authHeader(),
+  });
+};
+
+const deleteNotification = async (id) => {
+  return axios.delete(`${notificationURL}/remove/${id}`, {
     headers: await authHeader(),
   });
 };
@@ -557,4 +583,10 @@ export const services = {
   //Ticket
   getTicket,
   updateTicketStatus,
+
+  // notification
+  createNotification,
+  getNotifications,
+  updateNotification,
+  deleteNotification,
 };
