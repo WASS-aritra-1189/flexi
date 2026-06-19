@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { fetchUserList } from "../../store/slice/accountSlice";
 import Modal from "../../Components/Modal/Modal";
 import Pagination from "../../Components/Pagination/Pagination";
@@ -7,6 +8,7 @@ import { Tooltip } from "react-tooltip";
 
 const UserManagement = () => {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const { userList, userListCount } = useSelector((state) => state.account);
     const { uploading } = useSelector((state) => state.loader);
 
@@ -113,7 +115,7 @@ const UserManagement = () => {
                             <th>Address</th>
                             <th>Status</th>
                             <th>Created At</th>
-                            {/* <th>Actions</th> */}
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -142,6 +144,26 @@ const UserManagement = () => {
                                     <span className={`status-badge status-${user.status?.toLowerCase()}`}>{user.status}</span>
                                 </td>
                                 <td>{new Date(user.createdAt).toLocaleDateString()}</td>
+                                <td>
+                                    <div className="table-action-button">
+                                        <div
+                                            className="action-icon"
+                                            onClick={() => navigate(`/users/${user.id}/payment-history`)}
+                                            data-tooltip-id="payment-tooltip"
+                                            data-tooltip-content="Payment History"
+                                        >
+                                            <i className="bx bx-credit-card text-primary"></i>
+                                        </div>
+                                        <div
+                                            className="action-icon"
+                                            onClick={() => navigate(`/users/${user.id}/booking-history`)}
+                                            data-tooltip-id="booking-tooltip"
+                                            data-tooltip-content="Booking History"
+                                        >
+                                            <i className="bx bx-calendar text-success"></i>
+                                        </div>
+                                    </div>
+                                </td>
                                 {/* <td>
                                     <div className="table-action-button">
                                         <div className="action-icon" onClick={() => handleStatusModal(user.id, user.status)} data-tooltip-id="status-tooltip" data-tooltip-content="Change Status">
@@ -182,6 +204,8 @@ const UserManagement = () => {
             </Modal> */}
 
             <Tooltip id="refresh-tooltip" />
+            <Tooltip id="payment-tooltip" />
+            <Tooltip id="booking-tooltip" />
             <Tooltip id="status-tooltip" />
         </>
     );

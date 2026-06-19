@@ -92,6 +92,19 @@ export const SIDEBAR_MENU = [
     ]
   },
   {
+    name: "Curated Exploration",
+    icon: "bx bx-compass",
+    path: "/curated-exploration"
+  },
+  {
+    name: "Partners",
+    icon: "bx bx-group",
+    subItems: [
+      { name: "Travel Partner", path: "/travel-partners" },
+      { name: "Property Partner", path: "/property-partners" },
+    ]
+  },
+  {
     name: "User Management",
     icon: "bx bxs-user-account",
     path: "/users"

@@ -1,5 +1,5 @@
 import { useDispatch } from 'react-redux';
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useSelector } from "react-redux";
 import {
     getPropertyTypes,
@@ -25,6 +25,9 @@ const PropertyType = () => {
     const [searchKeyword, setSearchKeyword] = useState("");
     const [modal, setModal] = useState(false);
     const [formData, setFormData] = useState({ type: "" });
+    const [imageFile, setImageFile] = useState(null);
+    const [imagePreview, setImagePreview] = useState(null);
+    const imageInputRef = useRef(null);
     const [edit, setEdit] = useState(false);
     const [propertyTypeId, setPropertyTypeId] = useState(null);
     const [title, setTitle] = useState("Create Property Type");
@@ -74,15 +77,24 @@ const PropertyType = () => {
         setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
     };
 
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        setImageFile(file);
+        setImagePreview(URL.createObjectURL(file));
+    };
+
     const handleCreateUpdate = () => {
         if (validateForm()) {
             if (edit) {
-                dispatch(updatePropertyTypeData({ id: propertyTypeId, filters, body: formData }));
+                dispatch(updatePropertyTypeData({ id: propertyTypeId, filters, body: formData, imageFile }));
             } else {
-                dispatch(createPropertyType({ body: formData, filters }));
+                dispatch(createPropertyType({ body: formData, filters, imageFile }));
             }
             setModal(false);
             setFormData({ type: "" });
+            setImageFile(null);
+            setImagePreview(null);
             setErrors({});
         }
     };
@@ -92,6 +104,8 @@ const PropertyType = () => {
         setEdit(false);
         setTitle("Create Property Type");
         setFormData({ type: "" });
+        setImageFile(null);
+        setImagePreview(null);
         setErrors({});
     };
 
@@ -101,9 +115,11 @@ const PropertyType = () => {
         setPropertyTypeId(id);
         setEdit(true);
         setTitle("Update Property Type");
+        setImageFile(null);
         const propertyTypeToEdit = propertyTypes.find(item => item.id === id);
         if (propertyTypeToEdit) {
             setFormData({ type: propertyTypeToEdit.type });
+            setImagePreview(propertyTypeToEdit.image || null);
         }
     };
 
@@ -182,6 +198,7 @@ const PropertyType = () => {
                     <thead>
                         <tr>
                             <th>#</th>
+                            <th>Image</th>
                             <th>Property Type</th>
                             <th>Created At</th>
                             <th>Updated At</th>
@@ -192,6 +209,11 @@ const PropertyType = () => {
                         {propertyTypes?.map((item, index) => (
                             <tr key={index}>
                                 <td>{paginationState.offset + index + 1}</td>
+                                <td>
+                                    {item.image
+                                        ? <img src={item.image} alt="type" style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '6px' }} />
+                                        : <span style={{ color: '#9ca3af', fontSize: '12px' }}>No image</span>}
+                                </td>
                                 <td>{item.type}</td>
                                 <td>{new Date(item.createdAt).toLocaleString()}</td>
                                 <td>{new Date(item.updatedAt).toLocaleString()}</td>
@@ -239,6 +261,34 @@ const PropertyType = () => {
                         {errors.type && <span className="err-msg">{errors.type}</span>}
                     </div>
 
+                    <div className="form-group">
+                        <label>Image (optional)</label>
+                        <div
+                            onClick={() => imageInputRef.current.click()}
+                            style={{
+                                height: '100px', borderRadius: '8px', border: '2px dashed #d1d5db',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                cursor: 'pointer', overflow: 'hidden', background: '#f9fafb',
+                                backgroundImage: imagePreview ? `url(${imagePreview})` : 'none',
+                                backgroundSize: 'contain', backgroundPosition: 'center', backgroundRepeat: 'no-repeat',
+                            }}
+                        >
+                            {!imagePreview && (
+                                <div style={{ textAlign: 'center', color: '#9ca3af' }}>
+                                    <i className="bx bx-upload" style={{ fontSize: '24px', display: 'block' }}></i>
+                                    <span style={{ fontSize: '12px' }}>Click to upload image</span>
+                                </div>
+                            )}
+                        </div>
+                        <input ref={imageInputRef} type="file" accept="image/*" onChange={handleImageChange} style={{ display: 'none' }} />
+                        {imagePreview && (
+                            <button type="button" onClick={() => { setImageFile(null); setImagePreview(null); }}
+                                style={{ marginTop: '6px', padding: '4px 12px', borderRadius: '6px', border: '1px solid #fecaca', background: '#fff', color: '#dc2626', fontSize: '12px', cursor: 'pointer' }}>
+                                Remove Image
+                            </button>
+                        )}
+                    </div>
+
                     <div className="button-group-modal">
                         <button className="confirm-button" onClick={handleCreateUpdate}>
                             {uploading ? "Saving..." : "Save"}
@@ -268,6 +318,12 @@ const PropertyType = () => {
                                 <label>Property Type:</label>
                                 <span>{selectedPropertyType.type}</span>
                             </div>
+                            {selectedPropertyType.image && (
+                                <div className="detail-item">
+                                    <label>Image:</label>
+                                    <img src={selectedPropertyType.image} alt="type" style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '8px' }} />
+                                </div>
+                            )}
                             <div className="detail-item">
                                 <label>Created At:</label>
                                 <span>{new Date(selectedPropertyType.createdAt).toLocaleString()}</span>

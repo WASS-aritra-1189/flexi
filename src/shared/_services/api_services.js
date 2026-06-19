@@ -20,6 +20,10 @@ const languageURL = `${RootURL}languages`;
 const commissionURL = `${RootURL}commission`;
 const blogURL = `${RootURL}blogs`;
 const notificationURL = `${RootURL}notifications`;
+const propertyPartnerURL = `${RootURL}user-property`;
+const travelPartnerURL = `${RootURL}travel-partner`;
+const curatedExplorationURL = `${RootURL}curated-exploration`;
+const paymentHistoryURL = `${RootURL}payment-history`;
 
 const login = (credentials) => {
   return axios.post(`${authUrl}/admin/login`, credentials);
@@ -55,6 +59,10 @@ const userList = async (payload) => {
     `${accountURL}/user-list?limit=${limit}&offset=${offset}&keyword=${keyword}&status=${status}`,
     { headers: await authHeader() },
   );
+};
+
+const getVendorDetail = async (id) => {
+  return axios.get(`${accountURL}/vendor-detail/${id}`, { headers: await authHeader() });
 };
 
 // policy
@@ -160,7 +168,7 @@ const changeCityStatus = async (id, payload) => {
 //property Type
 const createPropertyType = async (payload) => {
   return axios.post(`${propertyTypeURL}`, payload, {
-    headers: await authHeader(),
+    headers: { ...(await authHeader()), "Content-Type": "multipart/form-data" },
   });
 };
 
@@ -176,7 +184,7 @@ const getAllPropertyType = async (payload) => {
 
 const updatePropertyType = async (id, payload) => {
   return axios.patch(`${propertyTypeURL}/update/${id}`, payload, {
-    headers: await authHeader(),
+    headers: { ...(await authHeader()), "Content-Type": "multipart/form-data" },
   });
 };
 
@@ -189,7 +197,7 @@ const deletePropertyType = async (id) => {
 //property-amenity
 const createPropertyAmenity = async (payload) => {
   return axios.post(`${propertAmenityURL}`, payload, {
-    headers: await authHeader(),
+    headers: { ...(await authHeader()), "Content-Type": "multipart/form-data" },
   });
 };
 const getAllPropertyAmenity = async (payload) => {
@@ -247,7 +255,7 @@ const deleteRoomType = async (id) => {
 //room-amenity
 const createRoomAmenity = async (payload) => {
   return axios.post(`${RoomUrl}-amenity`, payload, {
-    headers: await authHeader(),
+    headers: { ...(await authHeader()), "Content-Type": "multipart/form-data" },
   });
 };
 const getAllRoomAmenity = async (payload) => {
@@ -485,6 +493,65 @@ const deleteNotification = async (id) => {
   });
 };
 
+// partners
+const getAllPropertyPartners = async (payload) => {
+  const { limit, offset, keyword } = payload;
+  return axios.get(`${propertyPartnerURL}/list?limit=${limit}&offset=${offset}&keyword=${keyword}`, {
+    headers: await authHeader(),
+  });
+};
+
+const getAllTravelPartners = async (payload) => {
+  const { limit, offset, keyword } = payload;
+  return axios.get(`${travelPartnerURL}/list?limit=${limit}&offset=${offset}&keyword=${keyword}`, {
+    headers: await authHeader(),
+  });
+};
+
+// curated exploration
+const getAllCuratedExplorations = async (payload) => {
+  const { limit, offset, keyword } = payload;
+  return axios.get(`${curatedExplorationURL}/list?limit=${limit}&offset=${offset}&keyword=${keyword}`, {
+    headers: await authHeader(),
+  });
+};
+
+const createCuratedExploration = async (formData) => {
+  return axios.post(`${curatedExplorationURL}`, formData, {
+    headers: { ...(await authHeader()), "Content-Type": "multipart/form-data" },
+  });
+};
+
+const updateCuratedExploration = async (id, formData) => {
+  return axios.patch(`${curatedExplorationURL}/update/${id}`, formData, {
+    headers: { ...(await authHeader()), "Content-Type": "multipart/form-data" },
+  });
+};
+
+const deleteCuratedExploration = async (id) => {
+  return axios.delete(`${curatedExplorationURL}/remove/${id}`, {
+    headers: await authHeader(),
+  });
+};
+
+// booking history
+const getUserBookingHistory = async (userId, payload) => {
+  const { limit, offset, status } = payload;
+  return axios.get(
+    `${RootURL}book-room/admin/list/${userId}?limit=${limit}&offset=${offset}&status=${status}`,
+    { headers: await authHeader() },
+  );
+};
+
+// payment history
+const getUserPaymentHistory = async (userId, payload) => {
+  const { limit, offset, keyword } = payload;
+  return axios.get(
+    `${paymentHistoryURL}/admin/list/${userId}?limit=${limit}&offset=${offset}&keyword=${keyword}`,
+    { headers: await authHeader() },
+  );
+};
+
 export const services = {
   //auth services
   login,
@@ -494,6 +561,7 @@ export const services = {
   changeVendorStatus,
   // getVendorById, // Commented until backend ready
   userList,
+  getVendorDetail,
 
   // policy services
   getAllPolicy,
@@ -589,4 +657,20 @@ export const services = {
   getNotifications,
   updateNotification,
   deleteNotification,
+
+  // partners
+  getAllPropertyPartners,
+  getAllTravelPartners,
+
+  // curated exploration
+  getAllCuratedExplorations,
+  createCuratedExploration,
+  updateCuratedExploration,
+  deleteCuratedExploration,
+
+  // booking history
+  getUserBookingHistory,
+
+  // payment history
+  getUserPaymentHistory,
 };

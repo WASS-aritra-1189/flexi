@@ -49,12 +49,15 @@ export function getPropertyTypes(payload) {
 }
 
 export function createPropertyType(payload) {
-  const { body, filters } = payload;
+  const { body, filters, imageFile } = payload;
   return async function createPropertyTypeThunk(dispatch) {
     dispatch(setUploading(true));
     try {
-      await services.createPropertyType(body).then(
-        (response) => {
+      const fd = new FormData();
+      fd.append('type', body.type);
+      if (imageFile) fd.append('file', imageFile);
+      await services.createPropertyType(fd).then(
+        () => {
           dispatch(setUploading(false));
           dispatch(getPropertyTypes(filters));
           successHandler("Property Type created successfully!");
@@ -69,12 +72,15 @@ export function createPropertyType(payload) {
 }
 
 export function updatePropertyTypeData(payload) {
-  const { id, filters, body } = payload;
+  const { id, filters, body, imageFile } = payload;
   return async function updatePropertyTypeThunk(dispatch) {
     dispatch(setUploading(true));
     try {
-      await services.updatePropertyType(id, body).then(
-        (response) => {
+      const fd = new FormData();
+      fd.append('type', body.type);
+      if (imageFile) fd.append('file', imageFile);
+      await services.updatePropertyType(id, fd).then(
+        () => {
           dispatch(setUploading(false));
           dispatch(getPropertyTypes(filters));
           successHandler("Property Type updated successfully!");

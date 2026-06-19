@@ -9,6 +9,7 @@ import {
 const initialState = {
   vendorList: [],
   vendorListCount: 0,
+  selectedVendor: null,
   userList: [],
   userListCount: 0,
 };
@@ -21,6 +22,9 @@ const accountSlice = createSlice({
       state.vendorList = action.payload.result;
       state.vendorListCount = action.payload.total;
     },
+    setSelectedVendor: (state, action) => {
+      state.selectedVendor = action.payload;
+    },
     setUserList: (state, action) => {
       state.userList = action.payload.result;
       state.userListCount = action.payload.total;
@@ -28,7 +32,7 @@ const accountSlice = createSlice({
   },
 });
 
-export const { setVendorList, setUserList } = accountSlice.actions;
+export const { setVendorList, setSelectedVendor, setUserList } = accountSlice.actions;
 
 export default accountSlice.reducer;
 
@@ -62,6 +66,24 @@ export function changeVendorStatus(body, filters) {
         },
         (error) => {
           dispatch(setUploading(false));
+          errorHandler(error.response);
+        },
+      );
+    } catch (err) {}
+  };
+}
+
+export function fetchVendorDetail(id) {
+  return async function fetchVendorDetailThunk(dispatch) {
+    dispatch(setLoading(true));
+    try {
+      await services.getVendorDetail(id).then(
+        (response) => {
+          dispatch(setLoading(false));
+          dispatch(setSelectedVendor(response.data));
+        },
+        (error) => {
+          dispatch(setLoading(false));
           errorHandler(error.response);
         },
       );

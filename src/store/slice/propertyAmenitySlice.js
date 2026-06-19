@@ -53,7 +53,10 @@ export function createPropertyAmenity(payload) {
   return async function createPropertyAmenityThunk(dispatch) {
     dispatch(setUploading(true));
     try {
-      await services.createPropertyAmenity(body).then(
+      const fd = new FormData();
+      fd.append('name', body.name);
+      if (body.file) fd.append('file', body.file);
+      await services.createPropertyAmenity(fd).then(
         (response) => {
           dispatch(setUploading(false));
           dispatch(getPropertyAmenities(filters));

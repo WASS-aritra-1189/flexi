@@ -196,6 +196,8 @@ input {
       font-size: 14px;
       transition: all 0.2s ease;
       box-sizing: border-box;
+      background: inherit;
+      color: inherit;
 
       &:focus {
         outline: none;
@@ -732,10 +734,12 @@ body.dark-mode {
     th, td { border-color: #374151; }
   }
 
-  select, input, textarea {
+  select, input, textarea, .form-control {
     background: #374151;
     border-color: #4b5563;
     color: #f9fafb;
+
+    &::placeholder { color: #9ca3af; }
   }
 
   .edit-form .form-group label { color: #d1d5db; }

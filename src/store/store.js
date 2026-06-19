@@ -14,6 +14,8 @@ import languageSlice from "./slice/languageSlice";
 import commissionSlice from "./slice/commissionSlice";
 import blogSlice from "./slice/blogSlice";
 import notificationSlice from "./slice/notificationSlice";
+import partnerSlice from "./slice/partnerSlice";
+import curatedExplorationSlice from "./slice/curatedExplorationSlice";
 
 export const store = configureStore({
   reducer: {
@@ -32,6 +34,8 @@ export const store = configureStore({
     commission: commissionSlice,
     blog: blogSlice,
     notification: notificationSlice,
+    partner: partnerSlice,
+    curatedExploration: curatedExplorationSlice,
   },
 });
 

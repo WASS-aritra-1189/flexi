@@ -1,5 +1,8 @@
 
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchVendorDetail } from '../../store/slice/accountSlice';
 import './AccountVendorDetails.scss';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid,
@@ -33,13 +36,18 @@ const formatCurrency = (v) => `₹${(v / 1000).toFixed(0)}k`;
 
 const AccountVendorDetails = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const vendor = location.state?.vendor;
+  const { id } = useParams();
+  const dispatch = useDispatch();
+  const vendor = useSelector((state) => state.account.selectedVendor);
+
+  useEffect(() => {
+    if (id) dispatch(fetchVendorDetail(id));
+  }, [id]);
 
   if (!vendor) {
     return (
       <div className="not-found-message">
-        <p>No vendor data available</p>
+        <p>Loading vendor data...</p>
         <button className="cancel-button" onClick={() => navigate('/vendors')}>Back to Vendors</button>
       </div>
     );

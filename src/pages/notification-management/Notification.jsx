@@ -17,7 +17,7 @@ const Notification = () => {
 
     const [paginationState, setPaginationState] = useState({ limit: 10, offset: 0, currentPage: 1 });
     const [modal, setModal] = useState(false);
-    const [formData, setFormData] = useState({ title: "", desc: "", accountId: "" });
+    const [formData, setFormData] = useState({ title: "", desc: "", accountId: "", app: "USER" });
     const [edit, setEdit] = useState(false);
     const [notificationId, setNotificationId] = useState(null);
     const [title, setTitle] = useState("Create Notification");
@@ -47,7 +47,7 @@ const Notification = () => {
 
     const handleCreateUpdate = () => {
         if (!validateForm()) return;
-        const body = { title: formData.title, desc: formData.desc };
+        const body = { title: formData.title, desc: formData.desc, app: formData.app };
         if (!edit && formData.accountId) body.accountId = formData.accountId;
         if (edit) {
             dispatch(updateNotificationData({ id: notificationId, body, filters }));
@@ -59,14 +59,14 @@ const Notification = () => {
 
     const closeModal = () => {
         setModal(false);
-        setFormData({ title: "", desc: "", accountId: "" });
+        setFormData({ title: "", desc: "", accountId: "", app: "USER" });
         setErrors({});
     };
 
     const handleCreateOpenModal = () => {
         setEdit(false);
         setTitle("Create Notification");
-        setFormData({ title: "", desc: "", accountId: "" });
+        setFormData({ title: "", desc: "", accountId: "", app: "USER" });
         setErrors({});
         setModal(true);
     };
@@ -75,7 +75,7 @@ const Notification = () => {
         setEdit(true);
         setNotificationId(item.id);
         setTitle("Update Notification");
-        setFormData({ title: item.title, desc: item.desc, accountId: item.accountId || "" });
+        setFormData({ title: item.title, desc: item.desc, accountId: item.accountId || "", app: item.app || "USER" });
         setErrors({});
         setModal(true);
     };
@@ -132,6 +132,7 @@ const Notification = () => {
                             <th>Title</th>
                             <th>Description</th>
                             <th>Account ID</th>
+                            <th>App</th>
                             <th>Read</th>
                             <th>Created At</th>
                             <th>Actions</th>
@@ -144,6 +145,7 @@ const Notification = () => {
                                 <td>{item.title}</td>
                                 <td>{item.desc?.substring(0, 60)}{item.desc?.length > 60 ? '...' : ''}</td>
                                 <td>{item.accountId ?? <span style={{ color: '#9ca3af', fontSize: '12px' }}>N/A</span>}</td>
+                                <td>{item.app ?? "-"}</td>
                                 <td>
                                     <span className={`status-badge status-${item.read ? 'active' : 'pending'}`}>
                                         {item.read ? 'Read' : 'Unread'}
@@ -201,6 +203,14 @@ const Notification = () => {
                             rows="4"
                         />
                         {errors.desc && <span className="err-msg">{errors.desc}</span>}
+                    </div>
+
+                    <div className="form-group">
+                        <label>App</label>
+                        <select name="app" value={formData.app} onChange={handleFormChange} className="form-control">
+                            <option value="USER">USER</option>
+                            <option value="VENDOR">VENDOR</option>
+                        </select>
                     </div>
 
                     {!edit && (

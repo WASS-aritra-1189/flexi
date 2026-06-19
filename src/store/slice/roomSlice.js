@@ -162,7 +162,10 @@ export function createRoomAmenity(payload) {
   return async function createRoomAmenityThunk(dispatch) {
     dispatch(setUploading(true));
     try {
-      await services.createRoomAmenity(body).then(
+      const fd = new FormData();
+      fd.append('name', body.name);
+      if (body.file) fd.append('file', body.file);
+      await services.createRoomAmenity(fd).then(
         (response) => {
           dispatch(setUploading(false));
           dispatch(getRoomAmenities(filters));

@@ -7,6 +7,8 @@ import PublicRoute from "./PublicRoute";
 import TripManagement from "../pages/trip-management/TripManagement";
 import BookingManagement from "../pages/booking-management/BookingManagement";
 import UserManagement from "../pages/user-management/UserManagement";
+import UserPaymentHistory from "../pages/user-management/UserPaymentHistory";
+import UserBookingHistory from "../pages/user-management/UserBookingHistory";
 import Settings from "../pages/settings/Settings";
 import AddTrip from "../pages/trip-management/AddTrip";
 import TripCategories from "../pages/trip-management/TripCategories";
@@ -38,6 +40,9 @@ import ContactUs from "../pages/contact-us/ContactUs";
 import BlogCreate from "../pages/blog-management/BlogCreate";
 import BlogDetails from "../pages/blog-management/BlogDetails";
 import Notification from "../pages/notification-management/Notification";
+import PropertyPartner from "../pages/partners/PropertyPartner";
+import TravelPartner from "../pages/partners/TravelPartner";
+import CuratedExploration from "../pages/curated-exploration/CuratedExploration";
 
 const routes = createBrowserRouter([
     {
@@ -61,6 +66,8 @@ const routes = createBrowserRouter([
             { path: "bookings/pending", element: <PendingBookings /> },
             { path: "bookings/confirmed", element: <ConfirmedBookings /> },
             { path: "users", element: <UserManagement /> },
+            { path: "users/:id/payment-history", element: <UserPaymentHistory /> },
+            { path: "users/:id/booking-history", element: <UserBookingHistory /> },
             { path: "reports/bookings", element: <BookingReports /> },
             { path: "reports/revenue", element: <RevenueReports /> },
             { path: "reports/users", element: <UserReports /> },
@@ -88,6 +95,9 @@ const routes = createBrowserRouter([
             { path: "blogs/details", element: <BlogDetails /> },
             { path: "contact-us", element: <ContactUs /> },
             { path: "notifications", element: <Notification /> },
+            { path: "property-partners", element: <PropertyPartner /> },
+            { path: "travel-partners", element: <TravelPartner /> },
+            { path: "curated-exploration", element: <CuratedExploration /> },
         ],
     },
     {

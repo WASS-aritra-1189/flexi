@@ -24,8 +24,9 @@ const PropertyAmenity = () => {
     });
     const [searchKeyword, setSearchKeyword] = useState("");
     const [modal, setModal] = useState(false);
-    const [formData, setFormData] = useState({ name: "" });
+    const [formData, setFormData] = useState({ name: "", file: null });
     const [edit, setEdit] = useState(false);
+    const [iconPreview, setIconPreview] = useState(null);
     const [propertyAmenityId, setPropertyAmenityId] = useState(null);
     const [title, setTitle] = useState("Create Property Amenity");
     const [errors, setErrors] = useState({});
@@ -74,6 +75,12 @@ const PropertyAmenity = () => {
         setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
     };
 
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        setFormData((prev) => ({ ...prev, file }));
+        setIconPreview(file ? URL.createObjectURL(file) : null);
+    };
+
     const handleCreateUpdate = () => {
         if (validateForm()) {
             if (edit) {
@@ -82,7 +89,8 @@ const PropertyAmenity = () => {
                 dispatch(createPropertyAmenity({ body: formData, filters }));
             }
             setModal(false);
-            setFormData({ name: "" });
+            setFormData({ name: "", file: null });
+            setIconPreview(null);
             setErrors({});
         }
     };
@@ -91,7 +99,8 @@ const PropertyAmenity = () => {
         setModal(true);
         setEdit(false);
         setTitle("Create Property Amenity");
-        setFormData({ name: "" });
+        setFormData({ name: "", file: null });
+        setIconPreview(null);
         setErrors({});
     };
 
@@ -103,7 +112,8 @@ const PropertyAmenity = () => {
         setTitle("Update Property Amenity");
         const propertyAmenityToEdit = propertyAmenities.find(item => item.id === id);
         if (propertyAmenityToEdit) {
-            setFormData({ name: propertyAmenityToEdit.name });
+            setFormData({ name: propertyAmenityToEdit.name, file: null });
+            setIconPreview(propertyAmenityToEdit.image || null);
         }
     };
 
@@ -182,6 +192,7 @@ const PropertyAmenity = () => {
                     <thead>
                         <tr>
                             <th>#</th>
+                            <th>Icon</th>
                             <th>Amenity Name</th>
                             <th>Created At</th>
                             <th>Updated At</th>
@@ -192,6 +203,13 @@ const PropertyAmenity = () => {
                         {propertyAmenities?.map((item, index) => (
                             <tr key={index}>
                                 <td>{paginationState.offset + index + 1}</td>
+                                <td>
+                                    {item.image ? (
+                                        <img src={item.image} alt="icon" style={{ width: '36px', height: '36px', objectFit: 'contain' }} />
+                                    ) : (
+                                        <span style={{ color: '#9ca3af', fontSize: '12px' }}>N/A</span>
+                                    )}
+                                </td>
                                 <td>{item.name}</td>
                                 <td>{new Date(item.createdAt).toLocaleString()}</td>
                                 <td>{new Date(item.updatedAt).toLocaleString()}</td>
@@ -238,6 +256,14 @@ const PropertyAmenity = () => {
                         />
                         {errors.name && <span className="err-msg">{errors.name}</span>}
                     </div>
+
+                    {!edit && (
+                        <div className="form-group">
+                            <label>Icon <span style={{ color: '#9ca3af', fontSize: '12px' }}>(optional)</span></label>
+                            <input type="file" accept="image/*" onChange={handleFileChange} className="form-control" />
+                            {iconPreview && <img src={iconPreview} alt="preview" style={{ marginTop: '8px', width: '50px', height: '50px', objectFit: 'contain' }} />}
+                        </div>
+                    )}
 
                     <div className="button-group-modal">
                         <button className="confirm-button" onClick={handleCreateUpdate}>
