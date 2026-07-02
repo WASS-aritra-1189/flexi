@@ -24,6 +24,7 @@ const propertyPartnerURL = `${RootURL}user-property`;
 const travelPartnerURL = `${RootURL}travel-partner`;
 const curatedExplorationURL = `${RootURL}curated-exploration`;
 const paymentHistoryURL = `${RootURL}payment-history`;
+const dashboardURL = `${RootURL}dashboard`;
 
 const login = (credentials) => {
   return axios.post(`${authUrl}/admin/login`, credentials);
@@ -63,6 +64,16 @@ const userList = async (payload) => {
 
 const getVendorDetail = async (id) => {
   return axios.get(`${accountURL}/vendor-detail/${id}`, { headers: await authHeader() });
+};
+
+const updateVendorDetails = async (id, payload) => {
+  const params = new URLSearchParams();
+  Object.entries(payload).forEach(([k, v]) => { if (v !== undefined && v !== null) params.append(k, v); });
+  return axios.patch(
+    `${RootURL}vendor-details/edit/${id}`,
+    params.toString(),
+    { headers: { ...(await authHeader()), 'Content-Type': 'application/x-www-form-urlencoded' } },
+  );
 };
 
 // policy
@@ -458,6 +469,7 @@ const getTicket = async (payload) => {
   const { limit, offset, keyword, status } = payload;
   return axios.get(
     `${ticketURL}/admin/list?limit=${limit}&offset=${offset}&keyword=${keyword}&status=${status}`,
+    { headers: await authHeader() },
   );
 };
 
@@ -552,6 +564,72 @@ const getUserPaymentHistory = async (userId, payload) => {
   );
 };
 
+const getAllPayments = async (payload) => {
+  const { limit, offset, keyword } = payload;
+  return axios.get(
+    `${paymentHistoryURL}/all-payments?limit=${limit}&offset=${offset}&keyword=${keyword}`,
+    { headers: await authHeader() },
+  );
+};
+
+// dashboard stats
+const getDashboardStats = async () => {
+  return axios.get(`${dashboardURL}/stats`, { headers: await authHeader() });
+};
+
+const getVendorStats = async (vendorId) => {
+  return axios.get(`${dashboardURL}/vendor-wise-stats/${vendorId}`, { headers: await authHeader() });
+};
+
+const bookRoomURL = `${RootURL}book-room`;
+
+const propertyURL = `${RootURL}property`;
+
+const getVendorProperties = async (vendorId, payload) => {
+  const { limit, offset, status, keyword } = payload;
+  return axios.get(
+    `${propertyURL}/admin/list/${vendorId}?limit=${limit}&offset=${offset}&status=${status}&keyword=${keyword}`,
+    { headers: await authHeader() },
+  );
+};
+
+// bookings
+const getAllBookings = async (vendorId, payload) => {
+  const { limit, offset, status } = payload;
+  return axios.get(
+    `${bookRoomURL}/admin/list/${vendorId}?limit=${limit}&offset=${offset}&status=${status}`,
+    { headers: await authHeader() },
+  );
+};
+
+const updateBooking = async (id, payload) => {
+  const params = new URLSearchParams();
+  Object.entries(payload).forEach(([k, v]) => { if (v !== undefined && v !== null && v !== '') params.append(k, v); });
+  return axios.patch(
+    `${bookRoomURL}/update-booking/${id}`,
+    params.toString(),
+    { headers: { ...(await authHeader()), 'Content-Type': 'application/x-www-form-urlencoded' } },
+  );
+};
+
+const updateBookingStatus = async (id, status) => {
+  const params = new URLSearchParams({ status });
+  return axios.patch(
+    `${bookRoomURL}/admin/status/${id}`,
+    params.toString(),
+    { headers: { ...(await authHeader()), 'Content-Type': 'application/x-www-form-urlencoded' } },
+  );
+};
+
+const addBookingPayment = async (id, amount) => {
+  const params = new URLSearchParams({ amount });
+  return axios.patch(
+    `${bookRoomURL}/admin/due/${id}`,
+    params.toString(),
+    { headers: { ...(await authHeader()), 'Content-Type': 'application/x-www-form-urlencoded' } },
+  );
+};
+
 export const services = {
   //auth services
   login,
@@ -562,6 +640,7 @@ export const services = {
   // getVendorById, // Commented until backend ready
   userList,
   getVendorDetail,
+  updateVendorDetails,
 
   // policy services
   getAllPolicy,
@@ -673,4 +752,18 @@ export const services = {
 
   // payment history
   getUserPaymentHistory,
+  getAllPayments,
+
+  // dashboard
+  getDashboardStats,
+  getVendorStats,
+
+  // vendor properties
+  getVendorProperties,
+
+  // bookings
+  getAllBookings,
+  updateBooking,
+  updateBookingStatus,
+  addBookingPayment,
 };

@@ -43,6 +43,8 @@ import Notification from "../pages/notification-management/Notification";
 import PropertyPartner from "../pages/partners/PropertyPartner";
 import TravelPartner from "../pages/partners/TravelPartner";
 import CuratedExploration from "../pages/curated-exploration/CuratedExploration";
+import PaymentHistory from "../pages/payment-history/PaymentHistory";
+import TicketManagement from "../pages/ticket-management/TicketManagement";
 
 const routes = createBrowserRouter([
     {
@@ -98,6 +100,8 @@ const routes = createBrowserRouter([
             { path: "property-partners", element: <PropertyPartner /> },
             { path: "travel-partners", element: <TravelPartner /> },
             { path: "curated-exploration", element: <CuratedExploration /> },
+            { path: "payment-history", element: <PaymentHistory /> },
+            { path: "tickets", element: <TicketManagement /> },
         ],
     },
     {

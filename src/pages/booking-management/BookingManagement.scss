@@ -1,0 +1,59 @@
+.bm-filters {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+
+  select {
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 13px;
+    min-width: 180px;
+    background: #fff;
+    cursor: pointer;
+  }
+}
+
+.booking-id-badge {
+  background: #eff6ff;
+  color: #2563eb;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.bm-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.bm-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #374151;
+  }
+
+  input {
+    padding: 8px 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 13px;
+    outline: none;
+
+    &:focus {
+      border-color: #2563eb;
+    }
+  }
+}
+
+.bm-full-width {
+  grid-column: 1 / -1;
+}

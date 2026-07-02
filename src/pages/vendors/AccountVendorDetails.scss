@@ -184,3 +184,41 @@
   font-size: 16px;
   color: #666;
 }
+
+// Dark Mode
+body.dark-mode {
+  .vendor-card {
+    background-color: #1f2937;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+
+    h3 { color: #f9fafb; }
+    p { color: #d1d5db; }
+    strong { color: #e5e7eb; }
+  }
+
+  .card-documents {
+    background-color: #1f2937;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+
+    h3 { color: #f9fafb; }
+
+    .documents-grid .document-item {
+      background-color: #374151;
+      border-color: #4b5563;
+
+      p { color: #9ca3af; }
+      a { color: #6ee7b7; }
+    }
+  }
+
+  .card-metadata {
+    background-color: #1f2937;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+
+    h3 { color: #f9fafb; }
+
+    .metadata-content { color: #9ca3af; }
+  }
+
+  .not-found-message { color: #9ca3af; }
+}

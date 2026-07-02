@@ -16,6 +16,8 @@ import blogSlice from "./slice/blogSlice";
 import notificationSlice from "./slice/notificationSlice";
 import partnerSlice from "./slice/partnerSlice";
 import curatedExplorationSlice from "./slice/curatedExplorationSlice";
+import paymentSlice from "./slice/paymentSlice";
+import bookingSlice from "./slice/bookingSlice";
 
 export const store = configureStore({
   reducer: {
@@ -36,6 +38,8 @@ export const store = configureStore({
     notification: notificationSlice,
     partner: partnerSlice,
     curatedExploration: curatedExplorationSlice,
+    payment: paymentSlice,
+    booking: bookingSlice,
   },
 });
 

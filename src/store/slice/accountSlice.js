@@ -12,6 +12,8 @@ const initialState = {
   selectedVendor: null,
   userList: [],
   userListCount: 0,
+  vendorProperties: [],
+  vendorPropertiesCount: 0,
 };
 
 const accountSlice = createSlice({
@@ -29,10 +31,14 @@ const accountSlice = createSlice({
       state.userList = action.payload.result;
       state.userListCount = action.payload.total;
     },
+    setVendorProperties: (state, action) => {
+      state.vendorProperties = action.payload.result;
+      state.vendorPropertiesCount = action.payload.total;
+    },
   },
 });
 
-export const { setVendorList, setSelectedVendor, setUserList } = accountSlice.actions;
+export const { setVendorList, setSelectedVendor, setUserList, setVendorProperties } = accountSlice.actions;
 
 export default accountSlice.reducer;
 
@@ -91,6 +97,25 @@ export function fetchVendorDetail(id) {
   };
 }
 
+export function updateVendorDetails(accountId, payload) {
+  return async function updateVendorDetailsThunk(dispatch) {
+    dispatch(setUploading(true));
+    try {
+      await services.updateVendorDetails(accountId, payload).then(
+        (response) => {
+          dispatch(setUploading(false));
+          dispatch(fetchVendorDetail(accountId));
+          successHandler('Vendor details updated successfully!');
+        },
+        (error) => {
+          dispatch(setUploading(false));
+          errorHandler(error.response);
+        },
+      );
+    } catch (err) {}
+  };
+}
+
 export function fetchUserList(payload) {
   return async function fetchUserListThunk(dispatch) {
     dispatch(setLoading(true));
@@ -99,6 +124,24 @@ export function fetchUserList(payload) {
         (response) => {
           dispatch(setLoading(false));
           dispatch(setUserList(response.data));
+        },
+        (error) => {
+          dispatch(setLoading(false));
+          errorHandler(error.response);
+        },
+      );
+    } catch (err) {}
+  };
+}
+
+export function fetchVendorProperties(vendorId, payload) {
+  return async function fetchVendorPropertiesThunk(dispatch) {
+    dispatch(setLoading(true));
+    try {
+      await services.getVendorProperties(vendorId, payload).then(
+        (response) => {
+          dispatch(setLoading(false));
+          dispatch(setVendorProperties(response.data));
         },
         (error) => {
           dispatch(setLoading(false));

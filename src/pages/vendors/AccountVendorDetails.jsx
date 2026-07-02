@@ -1,36 +1,15 @@
 
 import { useNavigate, useParams } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchVendorDetail } from '../../store/slice/accountSlice';
+import { fetchVendorDetail, updateVendorDetails } from '../../store/slice/accountSlice';
+import { services } from '../../shared/_services/api_services';
+import Modal from '../../Components/Modal/Modal';
 import './AccountVendorDetails.scss';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, BarChart, Bar, Legend
 } from 'recharts';
-
-// Placeholder revenue data — replace with real API data
-const monthlyRevenue = [
-  { month: 'Jan', revenue: 18000, bookings: 6 },
-  { month: 'Feb', revenue: 24000, bookings: 9 },
-  { month: 'Mar', revenue: 15000, bookings: 5 },
-  { month: 'Apr', revenue: 32000, bookings: 12 },
-  { month: 'May', revenue: 28000, bookings: 10 },
-  { month: 'Jun', revenue: 41000, bookings: 15 },
-  { month: 'Jul', revenue: 38000, bookings: 14 },
-  { month: 'Aug', revenue: 52000, bookings: 19 },
-  { month: 'Sep', revenue: 47000, bookings: 17 },
-  { month: 'Oct', revenue: 61000, bookings: 22 },
-  { month: 'Nov', revenue: 55000, bookings: 20 },
-  { month: 'Dec', revenue: 70000, bookings: 26 },
-];
-
-const revenueStats = [
-  { label: 'Total Revenue', value: '₹4,81,000', icon: 'bx bx-dollar-circle', color: '#059669' },
-  { label: 'Total Bookings', value: '175', icon: 'bx bxs-calendar-check', color: '#2563eb' },
-  { label: 'Avg. Monthly', value: '₹40,083', icon: 'bx bx-trending-up', color: '#d97706' },
-  { label: 'Commission Paid', value: '₹48,100', icon: 'bx bx-receipt', color: '#7c3aed' },
-];
 
 const formatCurrency = (v) => `₹${(v / 1000).toFixed(0)}k`;
 
@@ -39,10 +18,45 @@ const AccountVendorDetails = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
   const vendor = useSelector((state) => state.account.selectedVendor);
+  const [vendorStats, setVendorStats] = useState(null);
+  const [statsLoading, setStatsLoading] = useState(true);
+  const [editModal, setEditModal] = useState(false);
+  const [editForm, setEditForm] = useState({});
+  const { uploading } = useSelector((state) => state.loader);
 
   useEffect(() => {
-    if (id) dispatch(fetchVendorDetail(id));
+    if (id) {
+      dispatch(fetchVendorDetail(id));
+      fetchVendorStats();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
+
+  const fetchVendorStats = async () => {
+    try {
+      const response = await services.getVendorStats(id);
+      setVendorStats(response.data);
+    } catch (error) {
+      console.error('Error fetching vendor stats:', error);
+    } finally {
+      setStatsLoading(false);
+    }
+  };
+
+  const getRevenueStats = () => [
+    { label: 'Total Revenue', value: `₹${vendorStats?.totalRevenue?.toLocaleString() || '0'}`, icon: 'bx bx-dollar-circle', color: '#059669' },
+    { label: 'Total Bookings', value: vendorStats?.totalBookings || '0', icon: 'bx bxs-calendar-check', color: '#2563eb' },
+    { label: 'Avg. Monthly', value: `₹${vendorStats?.averageMonthlyRevenue?.toLocaleString() || '0'}`, icon: 'bx bx-trending-up', color: '#d97706' },
+  ];
+
+  const getMonthlyRevenueData = () => {
+    if (!vendorStats?.monthly_Revenue_and_Booking_Graph) return [];
+    return vendorStats.monthly_Revenue_and_Booking_Graph.map(item => ({
+      month: new Date(item.month).toLocaleDateString('en-US', { month: 'short' }),
+      revenue: item.revenue || 0,
+      bookings: parseInt(item.bookingCount) || 0,
+    }));
+  };
 
   if (!vendor) {
     return (
@@ -53,6 +67,24 @@ const AccountVendorDetails = () => {
     );
   }
   const vendorDetail = vendor.vendorDetail?.[0] || {};
+
+  const openEditModal = () => {
+    setEditForm({
+      name: vendorDetail.name || '',
+      email: vendorDetail.email || '',
+      aadharNumber: vendorDetail.aadharNumber || '',
+      panNumber: vendorDetail.panNumber || '',
+      businessName: vendorDetail.businessName || '',
+      address: vendorDetail.address || '',
+      serviceArea: vendorDetail.serviceArea || '',
+    });
+    setEditModal(true);
+  };
+
+  const handleEditSubmit = () => {
+    dispatch(updateVendorDetails(id, editForm));
+    setEditModal(false);
+  };
 
   return (
     <>
@@ -65,6 +97,14 @@ const AccountVendorDetails = () => {
           <button onClick={() => navigate('/vendors')} className="back-button">
             <i className="bx bx-arrow-back"></i>
             Back
+          </button>
+          <button onClick={openEditModal} style={{
+            display: 'flex', alignItems: 'center', gap: '6px',
+            padding: '7px 16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)',
+            background: 'rgba(255,255,255,0.1)', color: '#fff',
+            fontSize: '13px', fontWeight: '600', cursor: 'pointer',
+          }}>
+            <i className="bx bx-edit" /> Edit Details
           </button>
         </div>
       </div>
@@ -152,7 +192,10 @@ const AccountVendorDetails = () => {
 
           {/* Mini stat cards */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '12px', marginBottom: '24px' }}>
-            {revenueStats.map((s, i) => (
+            {statsLoading ? (
+              <p style={{ color: '#6b7280', fontSize: '13px' }}>Loading stats...</p>
+            ) : (
+              getRevenueStats().map((s, i) => (
               <div key={i} style={{
                 background: '#f9f9f9', border: '1px solid #e5e7eb',
                 borderLeft: `4px solid ${s.color}`, borderRadius: '8px',
@@ -170,15 +213,19 @@ const AccountVendorDetails = () => {
                   <div style={{ fontSize: '11px', color: '#6b7280', marginTop: '3px' }}>{s.label}</div>
                 </div>
               </div>
-            ))}
+              ))
+            )}
           </div>
 
           {/* Area Chart - Monthly Revenue */}
           <p style={{ fontSize: '13px', fontWeight: '600', color: '#374151', marginBottom: '12px', marginTop: 0 }}>
             Monthly Revenue & Bookings
           </p>
-          <ResponsiveContainer width="100%" height={260}>
-            <AreaChart data={monthlyRevenue} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+          {statsLoading ? (
+            <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>Loading chart...</div>
+          ) : (
+            <ResponsiveContainer width="100%" height={260}>
+              <AreaChart data={getMonthlyRevenueData()} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
               <defs>
                 <linearGradient id="vRevGrad" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#092615" stopOpacity={0.25} />
@@ -197,33 +244,42 @@ const AccountVendorDetails = () => {
               <Legend />
               <Area yAxisId="left" type="monotone" dataKey="revenue" stroke="#092615" strokeWidth={2} fill="url(#vRevGrad)" name="revenue" />
               <Area yAxisId="right" type="monotone" dataKey="bookings" stroke="#2563eb" strokeWidth={2} fill="url(#vBkGrad)" name="bookings" />
-            </AreaChart>
-          </ResponsiveContainer>
-
-          {/* Bar Chart - Quarter Comparison */}
-          <p style={{ fontSize: '13px', fontWeight: '600', color: '#374151', margin: '24px 0 12px' }}>
-            Quarterly Revenue Breakdown
-          </p>
-          <ResponsiveContainer width="100%" height={220}>
-            <BarChart
-              data={[
-                { quarter: 'Q1', revenue: monthlyRevenue.slice(0,3).reduce((a,b) => a + b.revenue, 0) },
-                { quarter: 'Q2', revenue: monthlyRevenue.slice(3,6).reduce((a,b) => a + b.revenue, 0) },
-                { quarter: 'Q3', revenue: monthlyRevenue.slice(6,9).reduce((a,b) => a + b.revenue, 0) },
-                { quarter: 'Q4', revenue: monthlyRevenue.slice(9,12).reduce((a,b) => a + b.revenue, 0) },
-              ]}
-              margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-              <XAxis dataKey="quarter" tick={{ fontSize: 12, fill: '#6b7280' }} axisLine={false} tickLine={false} />
-              <YAxis tickFormatter={formatCurrency} tick={{ fontSize: 12, fill: '#6b7280' }} axisLine={false} tickLine={false} />
-              <Tooltip formatter={(v) => `₹${v.toLocaleString()}`} />
-              <Bar dataKey="revenue" fill="#092615" radius={[6, 6, 0, 0]} name="Revenue" />
-            </BarChart>
-          </ResponsiveContainer>
+              </AreaChart>
+            </ResponsiveContainer>
+          )}
         </div>
 
       </div>
+
+      <Modal isOpen={editModal} onClose={() => setEditModal(false)} title="Edit Vendor Details" width="600px">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          {[
+            { label: 'Name', key: 'name', type: 'text' },
+            { label: 'Email', key: 'email', type: 'email' },
+            { label: 'Aadhar Number', key: 'aadharNumber', type: 'text' },
+            { label: 'PAN Number', key: 'panNumber', type: 'text' },
+            { label: 'Business Name', key: 'businessName', type: 'text' },
+            { label: 'Address', key: 'address', type: 'text' },
+            { label: 'Service Area', key: 'serviceArea', type: 'text' },
+          ].map(({ label, key, type }) => (
+            <div key={key} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <label style={{ fontSize: '13px', fontWeight: '600', color: '#374151' }}>{label}</label>
+              <input
+                type={type}
+                value={editForm[key] || ''}
+                onChange={e => setEditForm(prev => ({ ...prev, [key]: e.target.value }))}
+                style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '13px' }}
+              />
+            </div>
+          ))}
+        </div>
+        <div className="button-group-modal">
+          <button className="confirm-button" onClick={handleEditSubmit}>
+            {uploading ? 'Saving...' : 'Save Changes'}
+          </button>
+          <button className="cancel-button" onClick={() => setEditModal(false)}>Cancel</button>
+        </div>
+      </Modal>
     </>
   );
 };

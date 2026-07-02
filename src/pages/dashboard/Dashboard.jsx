@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
     AreaChart, Area, XAxis, YAxis, CartesianGrid,
     Tooltip, ResponsiveContainer, Legend, BarChart, Bar
 } from "recharts";
+import { services } from "../../shared/_services/api_services";
+import Loader from "../../Components/Loader/Loader";
 
 const statCards = [
     { label: "Total Users", icon: "bx bxs-user-account", value: "0", color: "#2563eb", borderColor: "#2563eb" },
@@ -44,6 +46,55 @@ const formatCurrency = (value) => `₹${(value / 1000).toFixed(0)}k`;
 
 const Dashboard = () => {
     const [activeChart, setActiveChart] = useState("area");
+    const [stats, setStats] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetchDashboardStats();
+    }, []);
+
+    const fetchDashboardStats = async () => {
+        try {
+            const response = await services.getDashboardStats();
+            setStats(response.data);
+        } catch (error) {
+            console.error("Error fetching dashboard stats:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const getStatCards = () => [
+        { label: "Total Users", icon: "bx bxs-user-account", value: stats?.totalUsers || "0", color: "#2563eb", borderColor: "#2563eb" },
+        { label: "Total Vendors", icon: "bx bx-store", value: stats?.totalVendors || "0", color: "#7c3aed", borderColor: "#7c3aed" },
+        { label: "Total Bookings", icon: "bx bxs-calendar-check", value: stats?.totalBookings || "0", color: "#d97706", borderColor: "#d97706" },
+        { label: "Total Rooms", icon: "bx bx-bed", value: stats?.totalRooms?.toLocaleString() || "0", color: "#0891b2", borderColor: "#0891b2" },
+        { label: "Total Inventory", icon: "bx bx-package", value: stats?.totalInventory || "0", color: "#8b5cf6", borderColor: "#8b5cf6" },
+        { label: "Free Inventory", icon: "bx bxs-door-open", value: stats?.freeInventory || "0", color: "#16a34a", borderColor: "#16a34a" },
+        { label: "Occupied Inventory", icon: "bx bx-door-open", value: stats?.occupiedInventory || "0", color: "#dc2626", borderColor: "#dc2626" },
+        { label: "Total Revenue", icon: "bx bx-dollar-circle", value: `₹${stats?.totalVendorRevenue?.toLocaleString() || "0"}`, color: "#ea580c", borderColor: "#ea580c" },
+    ];
+
+    const getMonthlyRevenueData = () => {
+        if (!stats?.monthly_Revenue_and_Booking_Graph) return [];
+        return stats.monthly_Revenue_and_Booking_Graph.map(item => ({
+            month: new Date(item.month).toLocaleDateString('en-US', { month: 'short' }),
+            revenue: item.revenue || 0,
+            bookings: parseInt(item.bookingCount) || 0,
+        }));
+    };
+
+    const getVendorRevenueData = () => {
+        if (!stats?.vendor_Revenue_Breakdown_Graph) return [];
+        return stats.vendor_Revenue_Breakdown_Graph
+            .filter(item => item.earnings !== null)
+            .map(item => ({
+                vendor: item.vendorName,
+                revenue: item.earnings || 0,
+            }));
+    };
+
+    if (loading) return <Loader loading={loading} />;
 
     return (
         <div className="dashboard">
@@ -61,7 +112,7 @@ const Dashboard = () => {
                 gap: '16px',
                 marginBottom: '28px',
             }}>
-                {statCards.map((card, index) => (
+                {getStatCards().map((card, index) => (
                     <div key={index} style={{
                         background: '#fff',
                         border: '1px solid #e5e7eb',
@@ -137,7 +188,7 @@ const Dashboard = () => {
 
                 <ResponsiveContainer width="100%" height={300}>
                     {activeChart === "area" ? (
-                        <AreaChart data={monthlyRevenueData} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
+                        <AreaChart data={getMonthlyRevenueData()} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
                             <defs>
                                 <linearGradient id="revenueGrad" x1="0" y1="0" x2="0" y2="1">
                                     <stop offset="5%" stopColor="#092615" stopOpacity={0.3} />
@@ -158,7 +209,7 @@ const Dashboard = () => {
                             <Area yAxisId="right" type="monotone" dataKey="bookings" stroke="#f97316" strokeWidth={2.5} fill="url(#bookingsGrad)" name="bookings" />
                         </AreaChart>
                     ) : (
-                        <BarChart data={monthlyRevenueData} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
+                        <BarChart data={getMonthlyRevenueData()} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
                             <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                             <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#6b7280' }} axisLine={false} tickLine={false} />
                             <YAxis tickFormatter={formatCurrency} tick={{ fontSize: 12, fill: '#6b7280' }} axisLine={false} tickLine={false} />
@@ -185,14 +236,13 @@ const Dashboard = () => {
                     </p>
                 </div>
                 <ResponsiveContainer width="100%" height={280}>
-                    <BarChart data={vendorRevenueData} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
+                    <BarChart data={getVendorRevenueData()} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                         <XAxis dataKey="vendor" tick={{ fontSize: 12, fill: '#6b7280' }} axisLine={false} tickLine={false} />
                         <YAxis tickFormatter={formatCurrency} tick={{ fontSize: 12, fill: '#6b7280' }} axisLine={false} tickLine={false} />
                         <Tooltip formatter={(value) => `₹${value.toLocaleString()}`} />
                         <Legend />
-                        <Bar dataKey="revenue" fill="#3b82f6" radius={[6, 6, 0, 0]} name="Revenue" />
-                        <Bar dataKey="commission" fill="#10b981" radius={[6, 6, 0, 0]} name="Commission" />
+                        <Bar dataKey="revenue" fill="#3b82f6" radius={[6, 6, 0, 0]} name="Earnings" />
                     </BarChart>
                 </ResponsiveContainer>
             </div>

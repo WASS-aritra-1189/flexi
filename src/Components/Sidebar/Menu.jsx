@@ -49,16 +49,11 @@ export const SIDEBAR_MENU = [
       { name: "Property Rules", path: "/property-rules" },
     ]
   },
-  // {
-  //   name: "Booking Management",
-  //   icon: "bx bxs-calendar",
-  //   subItems: [
-  //     { name: "All Bookings", path: "/bookings" },
-  //     { name: "Pending Bookings", path: "/bookings/pending" },
-  //     { name: "Confirmed Bookings", path: "/bookings/confirmed" }
-  //   ]
-  // },
-
+  {
+    name: "Booking Management",
+    icon: "bx bxs-calendar",
+    path: "/bookings"
+  },
   // {
   //   name: "Reports",
   //   icon: "bx bxs-report",
@@ -105,6 +100,11 @@ export const SIDEBAR_MENU = [
     ]
   },
   {
+    name: "Payment History",
+    icon: "bx bx-credit-card",
+    path: "/payment-history"
+  },
+  {
     name: "User Management",
     icon: "bx bxs-user-account",
     path: "/users"
@@ -113,6 +113,11 @@ export const SIDEBAR_MENU = [
     name: "Settings",
     icon: "bx bxs-cog",
     path: "/settings"
+  },
+  {
+    name: "Ticket Management",
+    icon: "bx bx-support",
+    path: "/tickets"
   },
   {
     name: "Contact Us",
