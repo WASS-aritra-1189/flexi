@@ -26,7 +26,7 @@ const City = () => {
     });
     const [searchKeyword, setSearchKeyword] = useState("");
     const [modal, setModal] = useState(false);
-    const [formData, setFormData] = useState({ name: "", stateId: "" });
+    const [formData, setFormData] = useState({ name: "", stateId: "", detail: "", highlight: "" });
     const [edit, setEdit] = useState(false);
     const [cityId, setCityId] = useState(null);
     const [title, setTitle] = useState("Create City");
@@ -97,12 +97,12 @@ const City = () => {
     const handleCreateUpdate = () => {
         if (validateForm()) {
             if (edit) {
-                dispatch(updateCityData({ id: cityId, filters, body: { name: formData.name } }));
+                dispatch(updateCityData({ id: cityId, filters, body: { name: formData.name, detail: formData.detail, highlight: formData.highlight } }));
             } else {
                 dispatch(createCity({ body: formData, filters }));
             }
             setModal(false);
-            setFormData({ name: "", stateId: "" });
+            setFormData({ name: "", stateId: "", detail: "", highlight: "" });
             setErrors({});
         }
     };
@@ -111,7 +111,7 @@ const City = () => {
         setModal(true);
         setEdit(false);
         setTitle("Create City");
-        setFormData({ name: "", stateId: states && states.length > 0 ? states[0].id : "" });
+        setFormData({ name: "", stateId: states && states.length > 0 ? states[0].id : "", detail: "", highlight: "" });
         setErrors({});
     };
 
@@ -123,7 +123,7 @@ const City = () => {
         setTitle("Update City");
         const cityToEdit = cities.find(item => item.id === id);
         if (cityToEdit) {
-            setFormData({ name: cityToEdit.name, stateId: cityToEdit.stateId });
+            setFormData({ name: cityToEdit.name, stateId: cityToEdit.stateId, detail: cityToEdit.detail || "", highlight: cityToEdit.highlight || "" });
         }
     };
 
@@ -317,6 +317,27 @@ const City = () => {
                         {errors.name && <span className="err-msg">{errors.name}</span>}
                     </div>
 
+                    <div className="form-group">
+                        <label>Detail</label>
+                        <textarea
+                            name='detail'
+                            value={formData.detail}
+                            onChange={handleFormChange}
+                            className="form-control"
+                            rows={3}
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label>Highlight</label>
+                        <input
+                            type="text"
+                            name='highlight'
+                            value={formData.highlight}
+                            onChange={handleFormChange}
+                            className="form-control"
+                        />
+                    </div>
 
                     <div className="button-group-modal">
                         <button className="confirm-button" onClick={handleCreateUpdate}>
@@ -382,6 +403,18 @@ const City = () => {
                                 <label>Updated At:</label>
                                 <span>{new Date(selectedCity.updatedAt).toLocaleString()}</span>
                             </div>
+                            {selectedCity.detail && (
+                                <div className="detail-item">
+                                    <label>Detail:</label>
+                                    <span>{selectedCity.detail}</span>
+                                </div>
+                            )}
+                            {selectedCity.highlight && (
+                                <div className="detail-item">
+                                    <label>Highlight:</label>
+                                    <span>{selectedCity.highlight}</span>
+                                </div>
+                            )}
                         </>
                     )}
                 </div>

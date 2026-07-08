@@ -25,10 +25,7 @@ const ContactUs = () => {
     const [filterStatus, setFilterStatus] = useState("ALL");
     const [paginationState, setPaginationState] = useState({ limit: 10, offset: 0, currentPage: 1 });
     const [detailsModal, setDetailsModal] = useState(false);
-    const [replyModal, setReplyModal] = useState(false);
     const [selectedMsg, setSelectedMsg] = useState(null);
-    const [replyText, setReplyText] = useState("");
-    const [replyError, setReplyError] = useState("");
 
     const filtered = messages.filter(m => {
         const matchesSearch =
@@ -44,22 +41,6 @@ const ContactUs = () => {
     const handleView = (msg) => {
         setSelectedMsg(msg);
         setDetailsModal(true);
-    };
-
-    const handleReplyOpen = (msg) => {
-        setSelectedMsg(msg);
-        setReplyText("");
-        setReplyError("");
-        setReplyModal(true);
-    };
-
-    const handleReplySend = () => {
-        if (!replyText.trim()) {
-            setReplyError("* Reply message is required");
-            return;
-        }
-        // TODO: dispatch reply API action
-        setReplyModal(false);
     };
 
     const pageChange = (page) => {
@@ -136,9 +117,6 @@ const ContactUs = () => {
                                         <div className="action-icon" onClick={() => handleView(msg)} data-tooltip-id="view-tooltip" data-tooltip-content="View Message">
                                             <i className="bx bx-info-circle text-olive"></i>
                                         </div>
-                                        <div className="action-icon" onClick={() => handleReplyOpen(msg)} data-tooltip-id="reply-tooltip" data-tooltip-content="Reply">
-                                            <i className="bx bx-reply text-info"></i>
-                                        </div>
                                     </div>
                                 </td>
                             </tr>
@@ -173,48 +151,11 @@ const ContactUs = () => {
                     </div>
                 )}
                 <div className="button-group-modal">
-                    <button className="confirm-button" onClick={() => { setDetailsModal(false); handleReplyOpen(selectedMsg); }}>
-                        <i className="bx bx-reply" style={{ marginRight: "6px" }}></i>Reply
-                    </button>
                     <button className="cancel-button" onClick={() => setDetailsModal(false)}>Close</button>
                 </div>
             </Modal>
 
-            {/* Reply Modal */}
-            <Modal isOpen={replyModal} onClose={() => setReplyModal(false)} title="Reply to Message" width="600px">
-                {selectedMsg && (
-                    <div className="edit-form">
-                        <div className="form-group">
-                            <label>To</label>
-                            <input type="text" className="form-control" value={`${selectedMsg.name} <${selectedMsg.email}>`} disabled />
-                        </div>
-                        <div className="form-group">
-                            <label>Subject</label>
-                            <input type="text" className="form-control" value={`Re: ${selectedMsg.subject}`} disabled />
-                        </div>
-                        <div className="form-group">
-                            <label>Reply</label>
-                            <textarea
-                                className="form-control"
-                                rows="5"
-                                placeholder="Write your reply here..."
-                                value={replyText}
-                                onChange={e => { setReplyText(e.target.value); setReplyError(""); }}
-                            />
-                            {replyError && <span className="err-msg">{replyError}</span>}
-                        </div>
-                        <div className="button-group-modal">
-                            <button className="confirm-button" onClick={handleReplySend}>
-                                <i className="bx bx-send" style={{ marginRight: "6px" }}></i>Send Reply
-                            </button>
-                            <button className="cancel-button" onClick={() => setReplyModal(false)}>Cancel</button>
-                        </div>
-                    </div>
-                )}
-            </Modal>
-
             <Tooltip id="view-tooltip" />
-            <Tooltip id="reply-tooltip" />
         </>
     );
 };

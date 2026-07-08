@@ -45,6 +45,7 @@ import TravelPartner from "../pages/partners/TravelPartner";
 import CuratedExploration from "../pages/curated-exploration/CuratedExploration";
 import PaymentHistory from "../pages/payment-history/PaymentHistory";
 import TicketManagement from "../pages/ticket-management/TicketManagement";
+import Ediary from "../pages/ediary-management/Ediary";
 
 const routes = createBrowserRouter([
     {
@@ -102,6 +103,7 @@ const routes = createBrowserRouter([
             { path: "curated-exploration", element: <CuratedExploration /> },
             { path: "payment-history", element: <PaymentHistory /> },
             { path: "tickets", element: <TicketManagement /> },
+            { path: "ediary", element: <Ediary /> },
         ],
     },
     {

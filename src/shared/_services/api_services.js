@@ -593,6 +593,28 @@ const getVendorProperties = async (vendorId, payload) => {
   );
 };
 
+// ediary
+const ediaryURL = `${RootURL}ediary`;
+
+const getAllEdiary = async (payload) => {
+  const { limit, offset, keyword } = payload;
+  return axios.get(`${ediaryURL}/all?limit=${limit}&offset=${offset}&keyword=${keyword}`, {
+    headers: await authHeader(),
+  });
+};
+
+const getEdiaryDetail = async (id) => {
+  return axios.get(`${ediaryURL}/detail/${id}`, { headers: await authHeader() });
+};
+
+const getEdiaryLikes = async (id) => {
+  return axios.get(`${RootURL}ediary-like/list/${id}`, { headers: await authHeader() });
+};
+
+const deleteEdiary = async (id) => {
+  return axios.delete(`${ediaryURL}/delete/${id}`, { headers: await authHeader() });
+};
+
 // bookings
 const getAllBookings = async (vendorId, payload) => {
   const { limit, offset, status } = payload;
@@ -760,6 +782,12 @@ export const services = {
 
   // vendor properties
   getVendorProperties,
+
+  // ediary
+  getAllEdiary,
+  getEdiaryDetail,
+  getEdiaryLikes,
+  deleteEdiary,
 
   // bookings
   getAllBookings,

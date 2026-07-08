@@ -120,6 +120,11 @@ export const SIDEBAR_MENU = [
     path: "/tickets"
   },
   {
+    name: "Ediary",
+    icon: "bx bx-book-open",
+    path: "/ediary"
+  },
+  {
     name: "Contact Us",
     icon: "bx bx-envelope",
     path: "/contact-us"
