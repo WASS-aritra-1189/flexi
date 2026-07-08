@@ -9,7 +9,7 @@ import BookingManagement from "../pages/booking-management/BookingManagement";
 import UserManagement from "../pages/user-management/UserManagement";
 import UserPaymentHistory from "../pages/user-management/UserPaymentHistory";
 import UserBookingHistory from "../pages/user-management/UserBookingHistory";
-import Settings from "../pages/settings/Settings";
+// import Settings from "../pages/settings/Settings";
 import AddTrip from "../pages/trip-management/AddTrip";
 import TripCategories from "../pages/trip-management/TripCategories";
 import PendingBookings from "../pages/booking-management/PendingBookings";
@@ -74,7 +74,7 @@ const routes = createBrowserRouter([
             { path: "reports/bookings", element: <BookingReports /> },
             { path: "reports/revenue", element: <RevenueReports /> },
             { path: "reports/users", element: <UserReports /> },
-            { path: "settings", element: <Settings /> },
+            // { path: "settings", element: <Settings /> },
             { path: "vendors", element: <AccountVendor /> },
             { path: "vendors/:id", element: <AccountVendorDetails /> },
             { path: "faqs", element: <Faq /> },

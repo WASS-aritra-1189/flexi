@@ -78,19 +78,19 @@ export function updatePropertyTypeData(payload) {
     try {
       const fd = new FormData();
       fd.append('type', body.type);
-      if (imageFile) fd.append('file', imageFile);
-      await services.updatePropertyType(id, fd).then(
-        () => {
-          dispatch(setUploading(false));
-          dispatch(getPropertyTypes(filters));
-          successHandler("Property Type updated successfully!");
-        },
-        (error) => {
-          dispatch(setUploading(false));
-          errorHandler(error.response);
-        },
-      );
-    } catch (err) {}
+      await services.updatePropertyType(id, fd);
+      if (imageFile) {
+        const imgFd = new FormData();
+        imgFd.append('file', imageFile);
+        await services.updatePropertyTypeImage(id, imgFd);
+      }
+      dispatch(setUploading(false));
+      dispatch(getPropertyTypes(filters));
+      successHandler("Property Type updated successfully!");
+    } catch (error) {
+      dispatch(setUploading(false));
+      errorHandler(error.response);
+    }
   };
 }
 

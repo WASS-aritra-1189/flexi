@@ -195,6 +195,12 @@ const getAllPropertyType = async (payload) => {
 
 const updatePropertyType = async (id, payload) => {
   return axios.patch(`${propertyTypeURL}/update/${id}`, payload, {
+    headers: await authHeader(),
+  });
+};
+
+const updatePropertyTypeImage = async (id, formData) => {
+  return axios.put(`${propertyTypeURL}/image/${id}`, formData, {
     headers: { ...(await authHeader()), "Content-Type": "multipart/form-data" },
   });
 };
@@ -691,6 +697,7 @@ export const services = {
   createPropertyType,
   getAllPropertyType,
   updatePropertyType,
+  updatePropertyTypeImage,
   deletePropertyType,
 
   // property Amenity

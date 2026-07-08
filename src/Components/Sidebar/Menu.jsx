@@ -110,11 +110,6 @@ export const SIDEBAR_MENU = [
     path: "/users"
   },
   {
-    name: "Settings",
-    icon: "bx bxs-cog",
-    path: "/settings"
-  },
-  {
     name: "Ticket Management",
     icon: "bx bx-support",
     path: "/tickets"
