@@ -25,6 +25,7 @@ const travelPartnerURL = `${RootURL}travel-partner`;
 const curatedExplorationURL = `${RootURL}curated-exploration`;
 const paymentHistoryURL = `${RootURL}payment-history`;
 const dashboardURL = `${RootURL}dashboard`;
+const rewardPoolURL = `${RootURL}reward-pool`;
 
 const login = (credentials) => {
   return axios.post(`${authUrl}/admin/login`, credentials);
@@ -658,6 +659,74 @@ const addBookingPayment = async (id, amount) => {
   );
 };
 
+// ============ REWARD POOL APIs ============
+
+// Admin: Get pool details
+const getRewardPoolDetails = async () => {
+  return axios.get(`${rewardPoolURL}/admin/pool`, { headers: await authHeader() });
+};
+
+// Admin: Add points to pool
+const addPointsToPool = async (points) => {
+  const params = new URLSearchParams({ points });
+  return axios.post(
+    `${rewardPoolURL}/admin/add-points`,
+    params.toString(),
+    { headers: { ...(await authHeader()), 'Content-Type': 'application/x-www-form-urlencoded' } },
+  );
+};
+
+// Admin: Get pool transactions
+const getPoolTransactions = async (payload) => {
+  const { limit, offset } = payload;
+  return axios.get(`${rewardPoolURL}/admin/transactions?limit=${limit}&offset=${offset}`, {
+    headers: await authHeader(),
+  });
+};
+
+// Admin: Distribute points to user
+const distributePointsToUser = async (payload) => {
+  const params = new URLSearchParams();
+  Object.entries(payload).forEach(([k, v]) => { if (v !== undefined && v !== null && v !== '') params.append(k, v); });
+  return axios.post(
+    `${rewardPoolURL}/admin/distribute`,
+    params.toString(),
+    { headers: { ...(await authHeader()), 'Content-Type': 'application/x-www-form-urlencoded' } },
+  );
+};
+
+// Admin: Get all transactions
+const getAllRewardTransactions = async (payload) => {
+  const { limit, offset } = payload;
+  return axios.get(`${rewardPoolURL}/admin/all-transactions?limit=${limit}&offset=${offset}`, {
+    headers: await authHeader(),
+  });
+};
+
+// Admin: Get all users with points
+const getAllUsersWithPoints = async (payload) => {
+  const { limit, offset, keyword } = payload;
+  return axios.get(`${rewardPoolURL}/admin/users?limit=${limit}&offset=${offset}&keyword=${keyword || ''}`, {
+    headers: await authHeader(),
+  });
+};
+
+// Admin: Get specific user points
+const getUserPointsById = async (userId) => {
+  return axios.get(`${rewardPoolURL}/admin/user/${userId}/points`, { headers: await authHeader() });
+};
+
+// Admin: Deduct points from user
+const deductUserPoints = async (payload) => {
+  const params = new URLSearchParams();
+  Object.entries(payload).forEach(([k, v]) => { if (v !== undefined && v !== null && v !== '') params.append(k, v); });
+  return axios.post(
+    `${rewardPoolURL}/admin/deduct-user-points`,
+    params.toString(),
+    { headers: { ...(await authHeader()), 'Content-Type': 'application/x-www-form-urlencoded' } },
+  );
+};
+
 export const services = {
   //auth services
   login,
@@ -801,4 +870,14 @@ export const services = {
   updateBooking,
   updateBookingStatus,
   addBookingPayment,
+
+  // reward pool
+  getRewardPoolDetails,
+  addPointsToPool,
+  getPoolTransactions,
+  distributePointsToUser,
+  getAllRewardTransactions,
+  getAllUsersWithPoints,
+  getUserPointsById,
+  deductUserPoints,
 };

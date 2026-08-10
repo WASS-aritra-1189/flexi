@@ -129,5 +129,10 @@ export const SIDEBAR_MENU = [
     name: "Notification",
     icon: "bx bx-bell",
     path: "/notifications"
+  },
+  {
+    name: "Reward Pool",
+    icon: "bx bx-gift",
+    path: "/reward-pool"
   }
 ];

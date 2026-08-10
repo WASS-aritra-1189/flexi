@@ -46,6 +46,7 @@ import CuratedExploration from "../pages/curated-exploration/CuratedExploration"
 import PaymentHistory from "../pages/payment-history/PaymentHistory";
 import TicketManagement from "../pages/ticket-management/TicketManagement";
 import Ediary from "../pages/ediary-management/Ediary";
+import RewardPool from "../pages/reward-pool/RewardPool";
 
 const routes = createBrowserRouter([
     {
@@ -104,6 +105,7 @@ const routes = createBrowserRouter([
             { path: "payment-history", element: <PaymentHistory /> },
             { path: "tickets", element: <TicketManagement /> },
             { path: "ediary", element: <Ediary /> },
+            { path: "reward-pool", element: <RewardPool /> },
         ],
     },
     {

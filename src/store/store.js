@@ -18,6 +18,7 @@ import partnerSlice from "./slice/partnerSlice";
 import curatedExplorationSlice from "./slice/curatedExplorationSlice";
 import paymentSlice from "./slice/paymentSlice";
 import bookingSlice from "./slice/bookingSlice";
+import rewardPoolSlice from "./slice/rewardPoolSlice";
 
 export const store = configureStore({
   reducer: {
@@ -40,6 +41,7 @@ export const store = configureStore({
     curatedExploration: curatedExplorationSlice,
     payment: paymentSlice,
     booking: bookingSlice,
+    rewardPool: rewardPoolSlice,
   },
 });
 
