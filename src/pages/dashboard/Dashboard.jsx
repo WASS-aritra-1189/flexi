@@ -6,56 +6,23 @@ import {
 import { services } from "../../shared/_services/api_services";
 import Loader from "../../Components/Loader/Loader";
 
-const statCards = [
-    { label: "Total Users", icon: "bx bxs-user-account", value: "0", color: "#2563eb", borderColor: "#2563eb" },
-    { label: "Total Vendors", icon: "bx bx-store", value: "0", color: "#7c3aed", borderColor: "#7c3aed" },
-    { label: "Total Bookings", icon: "bx bxs-calendar-check", value: "0", color: "#d97706", borderColor: "#d97706" },
-    { label: "Commission / Margin", icon: "bx bx-trending-up", value: "0%", color: "#059669", borderColor: "#059669" },
-    { label: "Total Rooms", icon: "bx bx-bed", value: "0", color: "#0891b2", borderColor: "#0891b2" },
-    { label: "Free Rooms", icon: "bx bxs-door-open", value: "0", color: "#16a34a", borderColor: "#16a34a" },
-    { label: "Occupied Rooms", icon: "bx bx-door-open", value: "0", color: "#dc2626", borderColor: "#dc2626" },
-    { label: "Total Revenue Till Date", icon: "bx bx-dollar-circle", value: "₹0", color: "#ea580c", borderColor: "#ea580c" },
-];
-
-// Placeholder data — replace with real API data
-const monthlyRevenueData = [
-    { month: "Jan", revenue: 42000, bookings: 18 },
-    { month: "Feb", revenue: 58000, bookings: 24 },
-    { month: "Mar", revenue: 35000, bookings: 15 },
-    { month: "Apr", revenue: 71000, bookings: 30 },
-    { month: "May", revenue: 63000, bookings: 27 },
-    { month: "Jun", revenue: 89000, bookings: 38 },
-    { month: "Jul", revenue: 95000, bookings: 42 },
-    { month: "Aug", revenue: 78000, bookings: 33 },
-    { month: "Sep", revenue: 110000, bookings: 47 },
-    { month: "Oct", revenue: 98000, bookings: 41 },
-    { month: "Nov", revenue: 125000, bookings: 54 },
-    { month: "Dec", revenue: 140000, bookings: 60 },
-];
-
-const vendorRevenueData = [
-    { vendor: "Vendor A", revenue: 85000, commission: 8500 },
-    { vendor: "Vendor B", revenue: 62000, commission: 6200 },
-    { vendor: "Vendor C", revenue: 110000, commission: 11000 },
-    { vendor: "Vendor D", revenue: 47000, commission: 4700 },
-    { vendor: "Vendor E", revenue: 93000, commission: 9300 },
-    { vendor: "Vendor F", revenue: 71000, commission: 7100 },
-];
-
 const formatCurrency = (value) => `₹${(value / 1000).toFixed(0)}k`;
 
 const Dashboard = () => {
     const [activeChart, setActiveChart] = useState("area");
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [cityInput, setCityInput] = useState("");
+    const [city, setCity] = useState("");
 
     useEffect(() => {
-        fetchDashboardStats();
-    }, []);
+        fetchDashboardStats(city);
+    }, [city]);
 
-    const fetchDashboardStats = async () => {
+    const fetchDashboardStats = async (cityFilter) => {
+        setLoading(true);
         try {
-            const response = await services.getDashboardStats();
+            const response = await services.getDashboardStats(cityFilter);
             setStats(response.data);
         } catch (error) {
             console.error("Error fetching dashboard stats:", error);
@@ -64,15 +31,29 @@ const Dashboard = () => {
         }
     };
 
+    const handleCitySearch = (e) => {
+        e.preventDefault();
+        setCity(cityInput.trim());
+    };
+
+    const handleClearCity = () => {
+        setCityInput("");
+        setCity("");
+    };
+
     const getStatCards = () => [
-        { label: "Total Users", icon: "bx bxs-user-account", value: stats?.totalUsers || "0", color: "#2563eb", borderColor: "#2563eb" },
-        { label: "Total Vendors", icon: "bx bx-store", value: stats?.totalVendors || "0", color: "#7c3aed", borderColor: "#7c3aed" },
-        { label: "Total Bookings", icon: "bx bxs-calendar-check", value: stats?.totalBookings || "0", color: "#d97706", borderColor: "#d97706" },
-        { label: "Total Rooms", icon: "bx bx-bed", value: stats?.totalRooms?.toLocaleString() || "0", color: "#0891b2", borderColor: "#0891b2" },
-        { label: "Total Inventory", icon: "bx bx-package", value: stats?.totalInventory || "0", color: "#8b5cf6", borderColor: "#8b5cf6" },
-        { label: "Free Inventory", icon: "bx bxs-door-open", value: stats?.freeInventory || "0", color: "#16a34a", borderColor: "#16a34a" },
-        { label: "Occupied Inventory", icon: "bx bx-door-open", value: stats?.occupiedInventory || "0", color: "#dc2626", borderColor: "#dc2626" },
-        { label: "Total Revenue", icon: "bx bx-dollar-circle", value: `₹${stats?.totalVendorRevenue?.toLocaleString() || "0"}`, color: "#ea580c", borderColor: "#ea580c" },
+        { label: "Total Users", icon: "bx bxs-user-account", value: stats?.totalUsers ?? 0, color: "#2563eb" },
+        { label: "Total Vendors", icon: "bx bx-store", value: stats?.totalVendors ?? 0, color: "#7c3aed" },
+        { label: "Pending Vendors", icon: "bx bx-time", value: stats?.totalPendingVendors ?? 0, color: "#f59e0b" },
+        { label: "Total Bookings", icon: "bx bxs-calendar-check", value: stats?.totalBookings ?? 0, color: "#d97706" },
+        { label: "Confirmed Bookings", icon: "bx bx-check-circle", value: stats?.totalConfirmedBooking ?? 0, color: "#16a34a" },
+        { label: "Completed Bookings", icon: "bx bxs-badge-check", value: stats?.totalCompletedBooking ?? 0, color: "#0891b2" },
+        { label: "Cancelled Bookings", icon: "bx bx-x-circle", value: stats?.totalCancelbooking ?? 0, color: "#dc2626" },
+        { label: "Total Rooms", icon: "bx bx-bed", value: stats?.totalRooms ?? 0, color: "#6366f1" },
+        { label: "Total Inventory", icon: "bx bx-package", value: stats?.totalInventory ?? 0, color: "#8b5cf6" },
+        { label: "Free Inventory", icon: "bx bxs-door-open", value: stats?.freeInventory ?? 0, color: "#059669" },
+        { label: "Occupied Inventory", icon: "bx bx-door-open", value: stats?.occupiedInventory ?? 0, color: "#e11d48" },
+        { label: "Total Revenue", icon: "bx bx-dollar-circle", value: `₹${(stats?.totalVendorRevenue ?? 0).toLocaleString()}`, color: "#ea580c" },
     ];
 
     const getMonthlyRevenueData = () => {
@@ -105,10 +86,30 @@ const Dashboard = () => {
                 </div>
             </div>
 
+            {/* City Filter */}
+            <form onSubmit={handleCitySearch} style={{ display: 'flex', gap: '10px', marginBottom: '24px', alignItems: 'center' }}>
+                <input
+                    type="text"
+                    placeholder="Filter by city (e.g. kolkata)"
+                    value={cityInput}
+                    onChange={(e) => setCityInput(e.target.value)}
+                    style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid #d1d5db', width: '260px', fontSize: '14px' }}
+                />
+                <button type="submit" style={{ padding: '8px 18px', borderRadius: '8px', background: '#092615', color: '#fff', border: 'none', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}>
+                    Apply
+                </button>
+                {city && (
+                    <button type="button" onClick={handleClearCity} style={{ padding: '8px 14px', borderRadius: '8px', background: '#f3f4f6', color: '#374151', border: '1px solid #d1d5db', cursor: 'pointer', fontSize: '14px' }}>
+                        Clear
+                    </button>
+                )}
+                {city && <span style={{ fontSize: '13px', color: '#6b7280' }}>Showing stats for: <strong>{city}</strong></span>}
+            </form>
+
             {/* Stat Cards */}
             <div style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
                 gap: '16px',
                 marginBottom: '28px',
             }}>

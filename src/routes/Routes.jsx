@@ -47,6 +47,8 @@ import PaymentHistory from "../pages/payment-history/PaymentHistory";
 import TicketManagement from "../pages/ticket-management/TicketManagement";
 import Ediary from "../pages/ediary-management/Ediary";
 import RewardPool from "../pages/reward-pool/RewardPool";
+import Coupon from "../pages/coupon-management/Coupon";
+import StaffManagement from "../pages/staff-management/StaffManagement";
 
 const routes = createBrowserRouter([
     {
@@ -106,6 +108,8 @@ const routes = createBrowserRouter([
             { path: "tickets", element: <TicketManagement /> },
             { path: "ediary", element: <Ediary /> },
             { path: "reward-pool", element: <RewardPool /> },
+            { path: "coupons", element: <Coupon /> },
+            { path: "staff", element: <StaffManagement /> },
         ],
     },
     {

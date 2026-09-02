@@ -26,6 +26,7 @@ const curatedExplorationURL = `${RootURL}curated-exploration`;
 const paymentHistoryURL = `${RootURL}payment-history`;
 const dashboardURL = `${RootURL}dashboard`;
 const rewardPoolURL = `${RootURL}reward-pool`;
+const couponURL = `${RootURL}coupon`;
 
 const login = (credentials) => {
   return axios.post(`${authUrl}/admin/login`, credentials);
@@ -579,9 +580,23 @@ const getAllPayments = async (payload) => {
   );
 };
 
+// admin commission
+const getAdminCommission = async () => {
+  return axios.get(`${accountURL}/commission`, { headers: await authHeader() });
+};
+
+const updateAdminCommission = async (adminCommissionPercentage) => {
+  return axios.patch(
+    `${accountURL}/update-commission`,
+    { adminCommissionPercentage },
+    { headers: await authHeader() },
+  );
+};
+
 // dashboard stats
-const getDashboardStats = async () => {
-  return axios.get(`${dashboardURL}/stats`, { headers: await authHeader() });
+const getDashboardStats = async (city = "") => {
+  const params = city ? `?city=${encodeURIComponent(city)}` : "";
+  return axios.get(`${dashboardURL}/stats${params}`, { headers: await authHeader() });
 };
 
 const getVendorStats = async (vendorId) => {
@@ -659,6 +674,38 @@ const addBookingPayment = async (id, amount) => {
   );
 };
 
+// coupon
+const createCoupon = async (formData) => {
+  return axios.post(`${couponURL}/admin`, formData, {
+    headers: { ...(await authHeader()), "Content-Type": "multipart/form-data" },
+  });
+};
+
+const getAllCoupons = async (payload) => {
+  const { limit, offset, keyword } = payload;
+  return axios.get(`${couponURL}/all?limit=${limit}&offset=${offset}&keyword=${keyword}`, {
+    headers: await authHeader(),
+  });
+};
+
+const updateCoupon = async (id, payload) => {
+  return axios.patch(`${couponURL}/admin/update/${id}`, payload, {
+    headers: await authHeader(),
+  });
+};
+
+const updateCouponImage = async (id, formData) => {
+  return axios.put(`${couponURL}/admin/image/${id}`, formData, {
+    headers: { ...(await authHeader()), "Content-Type": "multipart/form-data" },
+  });
+};
+
+const deleteCoupon = async (id) => {
+  return axios.delete(`${couponURL}/admin/remove/${id}`, {
+    headers: await authHeader(),
+  });
+};
+
 // ============ REWARD POOL APIs ============
 
 // Admin: Get pool details
@@ -725,6 +772,39 @@ const deductUserPoints = async (payload) => {
     params.toString(),
     { headers: { ...(await authHeader()), 'Content-Type': 'application/x-www-form-urlencoded' } },
   );
+};
+
+// staff
+const addStaff = async (payload) => {
+  return axios.post(`${accountURL}/add-staff`, payload, { headers: await authHeader() });
+};
+
+const getStaffList = async (payload) => {
+  const { limit, offset, keyword, status } = payload;
+  return axios.get(
+    `${accountURL}/admin-staff?limit=${limit}&offset=${offset}&keyword=${keyword}&status=${status}`,
+    { headers: await authHeader() },
+  );
+};
+
+const getStaffById = async (id) => {
+  return axios.get(`${accountURL}/staff/profile/${id}`, { headers: await authHeader() });
+};
+
+const updateStaffPassword = async (id, payload) => {
+  return axios.patch(`${accountURL}/staff/password/${id}`, payload, { headers: await authHeader() });
+};
+
+const updateStaff = async (id, payload) => {
+  return axios.patch(`${accountURL}/update/staff/${id}`, payload, { headers: await authHeader() });
+};
+
+const updateStaffStatus = async (id, payload) => {
+  return axios.put(`${accountURL}/staff-status/${id}`, payload, { headers: await authHeader() });
+};
+
+const deleteStaff = async (id) => {
+  return axios.delete(`${accountURL}/delete-staff/${id}`, { headers: await authHeader() });
 };
 
 export const services = {
@@ -871,6 +951,17 @@ export const services = {
   updateBookingStatus,
   addBookingPayment,
 
+  // admin commission
+  getAdminCommission,
+  updateAdminCommission,
+
+  // coupon
+  createCoupon,
+  getAllCoupons,
+  updateCoupon,
+  updateCouponImage,
+  deleteCoupon,
+
   // reward pool
   getRewardPoolDetails,
   addPointsToPool,
@@ -880,4 +971,13 @@ export const services = {
   getAllUsersWithPoints,
   getUserPointsById,
   deductUserPoints,
+
+  // staff
+  addStaff,
+  getStaffList,
+  getStaffById,
+  updateStaffPassword,
+  updateStaff,
+  updateStaffStatus,
+  deleteStaff,
 };

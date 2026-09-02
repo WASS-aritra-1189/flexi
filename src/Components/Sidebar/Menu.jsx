@@ -134,5 +134,15 @@ export const SIDEBAR_MENU = [
     name: "Reward Pool",
     icon: "bx bx-gift",
     path: "/reward-pool"
+  },
+  {
+    name: "Coupon Management",
+    icon: "bx bx-purchase-tag",
+    path: "/coupons"
+  },
+  {
+    name: "Staff Management",
+    icon: "bx bx-user-pin",
+    path: "/staff"
   }
 ];
