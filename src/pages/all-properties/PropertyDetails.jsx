@@ -1,4 +1,10 @@
+import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { changePropertyStatus, editProperty } from '../../store/slice/accountSlice';
+import Modal from '../../Components/Modal/Modal';
+
+const PROPERTY_STATUSES = ["ACTIVE", "DEACTIVE", "PENDING", "REJECTED"];
 
 const STATUS_COLORS = {
     ACTIVE: { bg: "rgba(34,197,94,0.1)", color: "#16a34a" },
@@ -15,8 +21,31 @@ const InfoRow = ({ label, value }) => (
 
 const PropertyDetails = () => {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     const location = useLocation();
     const property = location.state?.property;
+    const { uploading } = useSelector((state) => state.loader);
+
+    const [statusModal, setStatusModal] = useState(false);
+    const [editModal, setEditModal] = useState(false);
+    const [selectedStatus, setSelectedStatus] = useState(property?.status || "");
+    const [editForm, setEditForm] = useState({
+        name: property?.name || "",
+        checkInTime: property?.checkInTime || "",
+        checkOutTime: property?.checkOutTime || "",
+        contactPersonName: property?.contactPersonName || "",
+        contactPersonMobile: property?.contactPersonMobile || "",
+    });
+
+    const handleStatusSave = () => {
+        dispatch(changePropertyStatus(property.id, { status: selectedStatus }, null, null));
+        setStatusModal(false);
+    };
+
+    const handleEditSave = () => {
+        dispatch(editProperty(property.id, editForm, null, null));
+        setEditModal(false);
+    };
 
     if (!property) {
         return (
@@ -36,17 +65,41 @@ const PropertyDetails = () => {
                         <i className="bx bx-buildings" />
                         <h2 style={{ margin: 0 }}>Property Details</h2>
                     </div>
-                    <button
-                        onClick={() => navigate(-1)}
-                        style={{
-                            display: 'flex', alignItems: 'center', gap: '6px',
-                            padding: '7px 16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)',
-                            background: 'rgba(255,255,255,0.1)', color: '#fff',
-                            fontSize: '13px', fontWeight: '600', cursor: 'pointer',
-                        }}
-                    >
-                        <i className="bx bx-arrow-back" /> Back
-                    </button>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <button
+                            onClick={() => setStatusModal(true)}
+                            style={{
+                                display: 'flex', alignItems: 'center', gap: '6px',
+                                padding: '7px 16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)',
+                                background: 'rgba(255,255,255,0.1)', color: '#fff',
+                                fontSize: '13px', fontWeight: '600', cursor: 'pointer',
+                            }}
+                        >
+                            <i className="bx bx-cog" /> Status
+                        </button>
+                        <button
+                            onClick={() => setEditModal(true)}
+                            style={{
+                                display: 'flex', alignItems: 'center', gap: '6px',
+                                padding: '7px 16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)',
+                                background: 'rgba(255,255,255,0.1)', color: '#fff',
+                                fontSize: '13px', fontWeight: '600', cursor: 'pointer',
+                            }}
+                        >
+                            <i className="bx bx-edit" /> Edit
+                        </button>
+                        <button
+                            onClick={() => navigate(-1)}
+                            style={{
+                                display: 'flex', alignItems: 'center', gap: '6px',
+                                padding: '7px 16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)',
+                                background: 'rgba(255,255,255,0.1)', color: '#fff',
+                                fontSize: '13px', fontWeight: '600', cursor: 'pointer',
+                            }}
+                        >
+                            <i className="bx bx-arrow-back" /> Back
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -237,6 +290,48 @@ const PropertyDetails = () => {
                     </div>
                 </div>
             )}
+
+            {/* Status Modal */}
+            <Modal isOpen={statusModal} onClose={() => setStatusModal(false)} title="Change Property Status" width="500px">
+                <div className="status-container-horizontal">
+                    {PROPERTY_STATUSES.map((s) => (
+                        <div key={s} className={`status-option status-${s.toLowerCase()}`}>
+                            <input id={`det-status-${s}`} type="radio" name="detPropStatus" checked={selectedStatus === s} onChange={() => setSelectedStatus(s)} value={s} />
+                            <label htmlFor={`det-status-${s}`}>{s}</label>
+                        </div>
+                    ))}
+                </div>
+                <div className="button-group-modal">
+                    <button className="confirm-button" onClick={handleStatusSave} disabled={uploading}>{uploading ? "Saving..." : "Confirm"}</button>
+                    <button className="cancel-button" onClick={() => setStatusModal(false)}>Cancel</button>
+                </div>
+            </Modal>
+
+            {/* Edit Modal */}
+            <Modal isOpen={editModal} onClose={() => setEditModal(false)} title="Edit Property" width="500px">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                    {[
+                        { label: 'Property Name', key: 'name' },
+                        { label: 'Check-In Time', key: 'checkInTime' },
+                        { label: 'Check-Out Time', key: 'checkOutTime' },
+                        { label: 'Contact Person Name', key: 'contactPersonName' },
+                        { label: 'Contact Person Mobile', key: 'contactPersonMobile' },
+                    ].map(({ label, key }) => (
+                        <div key={key}>
+                            <label style={{ display: 'block', marginBottom: '6px', fontWeight: 600 }}>{label}</label>
+                            <input
+                                value={editForm[key] || ''}
+                                onChange={(e) => setEditForm((p) => ({ ...p, [key]: e.target.value }))}
+                                style={{ width: '100%', padding: '8px' }}
+                            />
+                        </div>
+                    ))}
+                </div>
+                <div className="button-group-modal">
+                    <button className="confirm-button" onClick={handleEditSave} disabled={uploading}>{uploading ? "Saving..." : "Update"}</button>
+                    <button className="cancel-button" onClick={() => setEditModal(false)}>Cancel</button>
+                </div>
+            </Modal>
         </>
     );
 };

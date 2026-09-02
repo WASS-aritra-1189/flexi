@@ -615,6 +615,14 @@ const getVendorProperties = async (vendorId, payload) => {
   );
 };
 
+const updatePropertyStatus = async (id, payload) => {
+  return axios.put(`${propertyURL}/status/${id}`, payload, { headers: await authHeader() });
+};
+
+const updateProperty = async (id, payload) => {
+  return axios.patch(`${propertyURL}/admin/update/${id}`, payload, { headers: await authHeader() });
+};
+
 // ediary
 const ediaryURL = `${RootURL}ediary`;
 
@@ -938,6 +946,8 @@ export const services = {
 
   // vendor properties
   getVendorProperties,
+  updatePropertyStatus,
+  updateProperty,
 
   // ediary
   getAllEdiary,

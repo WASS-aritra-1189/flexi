@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { fetchVendorList } from "../../store/slice/accountSlice";
-import { fetchVendorProperties } from "../../store/slice/accountSlice";
+import { fetchVendorList, fetchVendorProperties, changePropertyStatus, editProperty } from "../../store/slice/accountSlice";
 import Pagination from "../../Components/Pagination/Pagination";
+import Modal from "../../Components/Modal/Modal";
 import { Tooltip } from "react-tooltip";
 
 const ITEMS_PER_PAGE = 10;
+const PROPERTY_STATUSES = ["ACTIVE", "DEACTIVE", "PENDING", "REJECTED"];
 
 const AllProperties = () => {
     const dispatch = useDispatch();
@@ -25,6 +26,14 @@ const AllProperties = () => {
     const [propPage, setPropPage] = useState({ limit: ITEMS_PER_PAGE, offset: 0, currentPage: 1, keyword: "" });
     const [propSearch, setPropSearch] = useState("");
     const [propStatus, setPropStatus] = useState("ACTIVE");
+
+    // property modals
+    const [statusModal, setStatusModal] = useState(false);
+    const [editModal, setEditModal] = useState(false);
+    const [selectedProperty, setSelectedProperty] = useState(null);
+    const [selectedStatus, setSelectedStatus] = useState("");
+    const [editForm, setEditForm] = useState({});
+    const { uploading } = useSelector((state) => state.loader);
 
     useEffect(() => {
         dispatch(fetchVendorList({ limit: vendorPage.limit, offset: vendorPage.offset, keyword: vendorPage.keyword, status: vendorStatus }));
@@ -57,6 +66,36 @@ const AllProperties = () => {
     const handleBack = () => {
         setView("vendors");
         setSelectedVendor(null);
+    };
+
+    const propFilters = { limit: propPage.limit, offset: propPage.offset, status: propStatus, keyword: propPage.keyword };
+
+    const openStatusModal = (property) => {
+        setSelectedProperty(property);
+        setSelectedStatus(property.status);
+        setStatusModal(true);
+    };
+
+    const openEditModal = (property) => {
+        setSelectedProperty(property);
+        setEditForm({
+            name: property.name || "",
+            checkInTime: property.checkInTime || "",
+            checkOutTime: property.checkOutTime || "",
+            contactPersonName: property.contactPersonName || "",
+            contactPersonMobile: property.contactPersonMobile || "",
+        });
+        setEditModal(true);
+    };
+
+    const handleStatusSave = () => {
+        dispatch(changePropertyStatus(selectedProperty.id, { status: selectedStatus }, selectedVendor.id, propFilters));
+        setStatusModal(false);
+    };
+
+    const handleEditSave = () => {
+        dispatch(editProperty(selectedProperty.id, editForm, selectedVendor.id, propFilters));
+        setEditModal(false);
     };
 
     const renderStars = (count) =>
@@ -159,14 +198,32 @@ const AllProperties = () => {
                                         <div style={{ fontSize: "11px", color: "#6b7280" }}>
                                             <i className="bx bx-time" /> {property.checkInTime} – {property.checkOutTime}
                                         </div>
-                                        <button
-                                            onClick={() => navigate("/all-properties/details", { state: { property } })}
-                                            style={{ padding: "5px 14px", borderRadius: "6px", border: "1px solid #e5e7eb", background: "#f9f9f9", fontSize: "12px", fontWeight: 600, color: "#374151", cursor: "pointer" }}
-                                            data-tooltip-id="prop-tooltip"
-                                            data-tooltip-content="View Details"
-                                        >
-                                            <i className="bx bx-info-circle" style={{ marginRight: "4px" }} />Details
-                                        </button>
+                                        <div style={{ display: "flex", gap: "6px" }}>
+                                            <button
+                                                onClick={() => openStatusModal(property)}
+                                                style={{ padding: "5px 10px", borderRadius: "6px", border: "1px solid #e5e7eb", background: "#f9f9f9", fontSize: "12px", fontWeight: 600, color: "#374151", cursor: "pointer" }}
+                                                data-tooltip-id="prop-status-tooltip"
+                                                data-tooltip-content="Change Status"
+                                            >
+                                                <i className="bx bx-cog" />
+                                            </button>
+                                            <button
+                                                onClick={() => openEditModal(property)}
+                                                style={{ padding: "5px 10px", borderRadius: "6px", border: "1px solid #e5e7eb", background: "#f9f9f9", fontSize: "12px", fontWeight: 600, color: "#374151", cursor: "pointer" }}
+                                                data-tooltip-id="prop-edit-tooltip"
+                                                data-tooltip-content="Edit Property"
+                                            >
+                                                <i className="bx bx-edit" />
+                                            </button>
+                                            <button
+                                                onClick={() => navigate("/all-properties/details", { state: { property } })}
+                                                style={{ padding: "5px 14px", borderRadius: "6px", border: "1px solid #e5e7eb", background: "#f9f9f9", fontSize: "12px", fontWeight: 600, color: "#374151", cursor: "pointer" }}
+                                                data-tooltip-id="prop-tooltip"
+                                                data-tooltip-content="View Details"
+                                            >
+                                                <i className="bx bx-info-circle" style={{ marginRight: "4px" }} />Details
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -184,7 +241,52 @@ const AllProperties = () => {
                     onPageChange={(page) => setPropPage(p => ({ ...p, currentPage: page, offset: p.limit * (page - 1) }))}
                     onItemsLimitChange={(limit) => setPropPage(p => ({ ...p, limit, offset: 0, currentPage: 1 }))}
                 />
+
+                {/* Status Modal */}
+                <Modal isOpen={statusModal} onClose={() => setStatusModal(false)} title="Change Property Status" width="500px">
+                    <div className="status-container-horizontal">
+                        {PROPERTY_STATUSES.map((s) => (
+                            <div key={s} className={`status-option status-${s.toLowerCase()}`}>
+                                <input id={`prop-status-${s}`} type="radio" name="propStatus" checked={selectedStatus === s} onChange={() => setSelectedStatus(s)} value={s} />
+                                <label htmlFor={`prop-status-${s}`}>{s}</label>
+                            </div>
+                        ))}
+                    </div>
+                    <div className="button-group-modal">
+                        <button className="confirm-button" onClick={handleStatusSave} disabled={uploading}>{uploading ? "Saving..." : "Confirm"}</button>
+                        <button className="cancel-button" onClick={() => setStatusModal(false)}>Cancel</button>
+                    </div>
+                </Modal>
+
+                {/* Edit Modal */}
+                <Modal isOpen={editModal} onClose={() => setEditModal(false)} title="Edit Property" width="500px">
+                    <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+                        {[
+                            { label: "Property Name", key: "name" },
+                            { label: "Check-In Time", key: "checkInTime" },
+                            { label: "Check-Out Time", key: "checkOutTime" },
+                            { label: "Contact Person Name", key: "contactPersonName" },
+                            { label: "Contact Person Mobile", key: "contactPersonMobile" },
+                        ].map(({ label, key }) => (
+                            <div key={key}>
+                                <label style={{ display: "block", marginBottom: "6px", fontWeight: 600 }}>{label}</label>
+                                <input
+                                    value={editForm[key] || ""}
+                                    onChange={(e) => setEditForm((p) => ({ ...p, [key]: e.target.value }))}
+                                    style={{ width: "100%", padding: "8px" }}
+                                />
+                            </div>
+                        ))}
+                    </div>
+                    <div className="button-group-modal">
+                        <button className="confirm-button" onClick={handleEditSave} disabled={uploading}>{uploading ? "Saving..." : "Update"}</button>
+                        <button className="cancel-button" onClick={() => setEditModal(false)}>Cancel</button>
+                    </div>
+                </Modal>
+
                 <Tooltip id="prop-tooltip" />
+                <Tooltip id="prop-status-tooltip" />
+                <Tooltip id="prop-edit-tooltip" />
             </>
         );
     }

@@ -35,10 +35,16 @@ const accountSlice = createSlice({
       state.vendorProperties = action.payload.result;
       state.vendorPropertiesCount = action.payload.total;
     },
+    updatePropertyInList: (state, action) => {
+      const updated = action.payload;
+      state.vendorProperties = state.vendorProperties.map((p) =>
+        p.id === updated.id ? { ...p, ...updated } : p
+      );
+    },
   },
 });
 
-export const { setVendorList, setSelectedVendor, setUserList, setVendorProperties } = accountSlice.actions;
+export const { setVendorList, setSelectedVendor, setUserList, setVendorProperties, updatePropertyInList } = accountSlice.actions;
 
 export default accountSlice.reducer;
 
@@ -147,6 +153,38 @@ export function fetchVendorProperties(vendorId, payload) {
           dispatch(setLoading(false));
           errorHandler(error.response);
         },
+      );
+    } catch (err) {}
+  };
+}
+
+export function changePropertyStatus(id, payload, vendorId, filters) {
+  return async function (dispatch) {
+    dispatch(setUploading(true));
+    try {
+      await services.updatePropertyStatus(id, payload).then(
+        () => {
+          dispatch(setUploading(false));
+          dispatch(fetchVendorProperties(vendorId, filters));
+          successHandler("Property status updated successfully!");
+        },
+        (error) => { dispatch(setUploading(false)); errorHandler(error.response); },
+      );
+    } catch (err) {}
+  };
+}
+
+export function editProperty(id, payload, vendorId, filters) {
+  return async function (dispatch) {
+    dispatch(setUploading(true));
+    try {
+      await services.updateProperty(id, payload).then(
+        () => {
+          dispatch(setUploading(false));
+          dispatch(fetchVendorProperties(vendorId, filters));
+          successHandler("Property updated successfully!");
+        },
+        (error) => { dispatch(setUploading(false)); errorHandler(error.response); },
       );
     } catch (err) {}
   };
